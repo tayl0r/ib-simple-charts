@@ -95,6 +95,7 @@ text {
   var reportId_12m = 75211;
 
   var AddChartToTab = function(chartId, chart) {
+    // keep track of all the charts on each tab
     var parentObj = $(chartId).parent();
     var parentId = parentObj.attr("id");
     if (!(charts[parentId])) {
@@ -108,6 +109,7 @@ text {
   };
 
   var GotoTab = function(chartId) {
+    // open up the tab that this chart belongs to
     var parentObj = $(chartId).parent();
     $("#tabs").tabs("select", parentObj.attr("id"));
   }
@@ -383,6 +385,7 @@ text {
 
   $("#tabs").tabs({
     show: function(event, ui) {
+      // resize each chart when you switch to it's tab
       var currentTab = $(ui.panel);
       var tabId = currentTab.attr("id");
       if (charts[tabId]) {
