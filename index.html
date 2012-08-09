@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link href="nvd3/src/nv.d3.css" rel="stylesheet" type="text/css">
+<link href="jquery-ui-1.8.22.theme/css/ui-lightness/jquery-ui-1.8.22.custom.css" rel="stylesheet" type="text/css">
+<style>
+
+body {
+  overflow-y:scroll;
+}
+
+text {
+  font: 12px sans-serif;
+}
+
+</style>
+<body>
+
+<h1><a href="https://github.com/tayl0r/ib-simple-charts">Setup Instructions / GitHub project</a></h1>
+
+<div id="tabs">
+  <ul>
+    <li><a href="#m12">Past 12 Months</a></li>
+    <li><a href="#m1">Past 1 Months</a></li>
+    <li><a href="#ytd">Year To Date</a></li>
+  </ul>
+
+<div id="m12">
+  <h1>Past 12 Months</h1>
+
+  <h3>Dividend Payments</h3>
+  <svg id="dividendPaymentsReport-12m" style="height: 500px;"></svg>
+
+  <hr>
+
+  <h3>Cash</h3>
+  <svg id="cashReport-12m"></svg>
+
+  <hr>
+
+  <h3>Account Value</h3>
+  <svg id="accountValueReport-12m" style="height: 600px;"></svg>
+</div>
+
+
+<div id="m1">
+  <h1>Past 1 Months</h1>
+
+  <h3>Dividend Payments</h3>
+  <svg id="dividendPaymentsReport-1m" style="height: 500px;"></svg>
+
+  <hr>
+
+  <h3>Cash</h3>
+  <svg id="cashReport-1m"></svg>
+
+  <hr>
+
+  <h3>Account Value</h3>
+  <svg id="accountValueReport-1m" style="height: 600px;"></svg>
+</div>
+
+
+<div id="ytd">
+  <h1>Year To Date</h1>
+
+  <h3>Dividend Payments</h3>
+  <svg id="dividendPaymentsReport-ytd" style="height: 500px;"></svg>
+
+  <hr>
+
+  <h3>Cash</h3>
+  <svg id="cashReport-ytd"></svg>
+
+  <hr>
+
+  <h3>Account Value</h3>
+  <svg id="accountValueReport-ytd" style="height: 600px;"></svg>
+</div>
+
+</div>
+
+<script src="xml2json.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.21/jquery-ui.min.js"></script>
+<script src="nvd3/lib/d3.v2.js"></script>
+<script src="nvd3/nv.d3.js"></script>
+<script>
+
+  var step = 0;
+  var charts = {};
+  var currentTab;
+
+  var reportId_1m = 75212;
+  var reportId_ytd = 75123;
+  var reportId_12m = 75211;
+
+  var AddChartToTab = function(chartId, chart) {
+    var parentObj = $(chartId).parent();
+    var parentId = parentObj.attr("id");
+    if (!(charts[parentId])) {
+      charts[parentId] = [];
+    }
+    charts[parentId].push(chart);
+
+    if (currentTab == parentObj) {
+      nv.utils.windowResize(chart.update);
+    }
+  };
+
+  var GotoTab = function(chartId) {
+    var parentObj = $(chartId).parent();
+    $("#tabs").tabs("select", parentObj.attr("id"));
+  }
+
+  var DividendPaymentsReport = function(prefix, js) {
+    divData = [
+      {
+        "key": "Dividends",
+        "color": "#1f77b4",
+        "values": []
+      }
+      // {
+      //   "key": "Commissions",
+      //   "color": "#d62728",
+      //   "values": []
+      // }
+    ];
+    for (i = 0; i < js.length; ++i) {
+      var obj = js[i];
+      var symbol = obj["@symbol"];
+      var div = parseFloat(obj["@dividends"]);
+      var comm = parseFloat(obj["@commissions"]);
+      if (div > 0) {
+        divData[0].values.push({
+          //"series": 0,
+          "label": symbol,
+          "value": div
+        });
+      }
+      // divData[1].values.push({
+      //   //"series": 1,
+      //   "label": symbol,
+      //   "value": comm
+      // });
+    }
+
+    var chartId = '#dividendPaymentsReport' + prefix;
+    GotoTab(chartId)
+
+    nv.addGraph(function() {
+      var chart = nv.models.multiBarHorizontalChart()
+          .x(function(d) { return d.label })
+          .y(function(d) { return d.value })
+          .margin({top: 30, right: 100, bottom: 50, left: 100})
+          .showValues(true)
+          .tooltips(true)
+          .showControls(false);
+
+      chart.yAxis
+          .tickFormat(d3.format(',.2f'));
+
+      d3.select(chartId)
+          .datum(divData)
+        .transition().duration(500)
+          .call(chart);
+
+      //nv.utils.windowResize(chart.update);
+      AddChartToTab(chartId, chart);
+
+      return chart;
+    });
+
+  };
+
+  var EquitySummaryReport = function(prefix, js) {
+    equityData = [
+      {
+        "key": "Total",
+        "values": []
+      }
+    ];
+
+    for (i = 0; i < js.length; ++i) {
+      var obj = js[i];
+      // this really should be the date but i just can't get the charting library to cooperate.
+      // showing the days since chart start is acceptable though, so not going to worry about it.
+      var date = i; //Date.parse(obj['@reportDate']);
+      equityData[0].values.push({"series": 1, "x": date, "y": parseFloat(obj['@total'])});
+    }
+
+    var chartId = '#accountValueReport' + prefix;
+    GotoTab(chartId);
+
+    nv.addGraph(function() {
+      var chart = nv.models.lineWithFocusChart()
+      .margin({top: 30, right: 20, bottom: 50, left: 100})
+      .tooltips(true);
+      // chart.width = 960;
+      // chart.height = 1000;
+      // chart.height1 = 800;
+      // chart.height2 = 200;
+
+      chart.xAxis
+         .tickFormat(d3.format(',f'));
+
+      chart.x2Axis
+         .tickFormat(d3.format(',f'));
+
+      chart.yAxis
+         .tickFormat(d3.format(',.2f'));
+
+      chart.y2Axis
+         .tickFormat(d3.format(',.2f'));
+
+      d3.select(chartId)
+         .datum(equityData)
+       .transition().duration(500)
+         .call(chart);
+
+      //nv.utils.windowResize(chart.update);
+      AddChartToTab(chartId, chart);
+
+      return chart;
+    });
+  };
+
+  var CashReport = function(prefix, js) {
+    cashData = [
+      {
+        "key": "Lost",
+        "color": "#d62728",
+        values: [
+          {
+            "label": "Interest Paid",
+            "value": parseFloat(js["@brokerInterest"])
+          },
+          {
+            "label": "Commissions",
+            "value": parseFloat(js["@commissions"])
+          }
+        ]
+      },
+      {
+        "key": "Gained",
+        "color": "#1f77b4",
+        values: [
+          {
+            "label": "Dividends",
+            "value": parseFloat(js["@dividends"])
+          }
+        ]
+      }
+    ];
+
+    var chartId = '#cashReport' + prefix;
+    GotoTab(chartId);
+
+    nv.addGraph(function() {
+      var chart = nv.models.multiBarHorizontalChart()
+          .x(function(d) { return d.label })
+          .y(function(d) { return d.value })
+          .margin({top: 30, right: 20, bottom: 50, left: 100})
+          .showValues(true)
+          .tooltips(true)
+          .showControls(false);
+
+      chart.yAxis
+          .tickFormat(d3.format(',.2f'));
+
+      d3.select(chartId)
+          .datum(cashData)
+        .transition().duration(500)
+          .call(chart);
+
+      //nv.utils.windowResize(chart.update);
+      AddChartToTab(chartId, chart);
+
+      return chart;
+    });
+  };
+
+  var OnReportFinish = function(xml, nextCallback) {
+    var oXml = xml;
+    var oNextCallback = nextCallback;
+    var js;
+    if (oXml) {
+      var jsText = xml2json(xml, "   ");
+      js = $.parseJSON(jsText);
+    }
+    if (js && js['FlexStatementResponse']) {
+      var url = js.FlexStatementResponse.url;
+      var code = js.FlexStatementResponse.code;
+
+      $.ajax({
+        url: "IB-getter.php?service=FlexStatementService.GetStatement&q=" + code,
+        success: function(newXml) {
+          var newJs;
+          if (newXml) {
+            var newJsText = xml2json(newXml, "   ");
+            newJs = $.parseJSON(newJsText);
+          }
+          if (newXml && newJs && newJs['FlexQueryResponse']) {
+            console.log("got data! " + oNextCallback);
+            oNextCallback(newJs);
+          } else {
+            console.log("no data yet (1). " + oNextCallback);
+            setTimeout(function() {
+              OnReportFinish(oXml, oNextCallback);
+            }, 1000);
+          }
+        },
+        dataType: "xml"
+      });
+    } else {
+      console.log("no data yet (2). " + oNextCallback);
+      setTimeout(function() {
+        RunNextStep(true);
+      }, 1000);
+    }
+  }
+
+  var OnDividendGet12M = function(xml) {
+    OnReportFinish(xml, OnDividendGet12Mb)
+  }
+  var OnDividendGet12Mb = function(js) {
+    OnDividendGet(js, "-12m");
+  }
+
+  var OnDividendGet1M = function(xml) {
+    OnReportFinish(xml, OnDividendGet1Mb)
+  }
+  var OnDividendGet1Mb = function(js) {
+    OnDividendGet(js, "-1m");
+  }
+
+  var OnDividendGetYTD = function(xml) {
+    OnReportFinish(xml, OnDividendGetYTDb)
+  }
+  var OnDividendGetYTDb = function(js) {
+    OnDividendGet(js, "-ytd");
+  }
+
+  var OnDividendGet = function(js, prefix) {
+    DividendPaymentsReport(prefix, js.FlexQueryResponse.FlexStatements.FlexStatement.MTMPerformanceSummaryInBase.MTMPerformanceSummaryUnderlying);
+
+    CashReport(prefix, js.FlexQueryResponse.FlexStatements.FlexStatement.CashReport.CashReportCurrency);
+
+    EquitySummaryReport(prefix, js.FlexQueryResponse.FlexStatements.FlexStatement.EquitySummaryInBase.EquitySummaryByReportDateInBase);
+
+    RunNextStep(false);
+  }
+
+  var RunNextStep = function(retry) {
+    if (retry == false) {
+      step++;
+    }
+
+    if (step === 1) {
+      $.ajax({
+        url: "IB-getter.php?service=FlexStatementService.SendRequest&q=" + reportId_1m, // 1M
+        success: OnDividendGet1M,
+        dataType: "xml"
+      });
+    }
+
+    else if (step === 2) {
+      $.ajax({
+        url: "IB-getter.php?service=FlexStatementService.SendRequest&q=" + reportId_12m, // 12M
+        success: OnDividendGet12M,
+        dataType: "xml"
+      });
+    }
+
+    else if (step === 3) {
+      $.ajax({
+        url: "IB-getter.php?service=FlexStatementService.SendRequest&q=" + reportId_ytd, // YTD
+        success: OnDividendGetYTD,
+        dataType: "xml"
+      });
+    }
+
+  };
+
+  $("#tabs").tabs({
+    show: function(event, ui) {
+      var currentTab = $(ui.panel);
+      var tabId = currentTab.attr("id");
+      if (charts[tabId]) {
+        for (var i = 0; i < charts[tabId].length; ++i) {
+          var chart = charts[tabId][i];
+          nv.utils.windowResize(chart.update);
+        }
+      }
+    }
+});
+
+  RunNextStep(false);
+
+</script>
+</body>
