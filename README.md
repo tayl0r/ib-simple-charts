@@ -24,7 +24,7 @@ The php script is pretty basic, but it does add a server language to the require
 
 Requirements
 ============
-* web server with php support
+* web server with php support and the pecl_http php module
 * html5 capable browser
 * IB account with API key and proper flex reports
 
@@ -38,6 +38,12 @@ Before we actually try to configure this with your IB data, let's just make sure
 You can't run this from a local file:// url, you actually have to host it on a web server.
 So, copy it to your web server and then hit the ib-simple-charts/ url.
 It should come up with the demo data. If you see any errors in the console or the reports don't work, stop here and try to resolve them. The errors are probably from your web server configuration, php config, or something like that.
+
+If you don't have the pecl_http module installed, you will see this error:
+
+    Parse error: syntax error, unexpected T_OBJECT_OPERATOR in IB-getter.php on line 20
+
+Install the module via "pecl install pecl_http" or see [here](http://www.php.net/manual/en/http.install.php).
 
 Once the demo works, we can configure it with your IB data.
 
