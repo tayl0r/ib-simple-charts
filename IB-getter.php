@@ -1,6 +1,7 @@
 <?php
 
-$apiKey = 000000000000000;
+// $apiKey needs to be a string
+$apiKey = "000000000000000";
 $demo = true;
 
 $reportId = $_GET["q"];
