@@ -1,21 +1,21 @@
 
-nv.models.sparkline = function() {
-  var margin = {top: 0, right: 0, bottom: 0, left: 0},
-      width = 400,
-      height = 32,
-      animate = true,
-      getX = function(d) { return d.x },
-      getY = function(d) { return d.y },
-      color = nv.utils.defaultColor(),
-      xDomain, yDomain;
-
-  var x = d3.scale.linear(),
-      y = d3.scale.linear();
+nv.models.sparkline = () => {
+  var margin = {top: 0, right: 0, bottom: 0, left: 0};
+  var width = 400;
+  var height = 32;
+  var animate = true;
+  var getX = d => d.x;
+  var getY = d => d.y;
+  var color = nv.utils.defaultColor();
+  var xDomain;
+  var yDomain;
+  var x = d3.scale.linear();
+  var y = d3.scale.linear();
 
   function chart(selection) {
     selection.each(function(data) {
-      var availableWidth = width - margin.left - margin.right,
-          availableHeight = height - margin.top - margin.bottom;
+      var availableWidth = width - margin.left - margin.right;
+      var availableHeight = height - margin.top - margin.bottom;
 
 
       x   .domain(xDomain || d3.extent(data, getX ))
@@ -32,38 +32,38 @@ nv.models.sparkline = function() {
       //gEnter.append('g').attr('class', 'sparkline')
       gEnter
           .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-          .style('stroke', function(d,i) { return d.color || color(d, i) });
+          .style('stroke', (d, i) => d.color || color(d, i));
 
-/*
-      d3.select(this)
-          .attr('width', width)
-          .attr('height', height);
-         */
+      /*
+            d3.select(this)
+                .attr('width', width)
+                .attr('height', height);
+               */
 
 
       //var paths = gEnter.select('.sparkline').selectAll('path')
       var paths = gEnter.selectAll('path')
-          .data(function(d) { return [d] });
+          .data(d => [d]);
       paths.enter().append('path');
       paths.exit().remove();
       paths
           .attr('d', d3.svg.line()
-            .x(function(d,i) { return x(getX(d,i)) })
-            .y(function(d,i) { return y(getY(d,i)) })
+            .x((d, i) => x(getX(d,i)))
+            .y((d, i) => y(getY(d,i)))
           );
 
 
       // TODO: Add CURRENT data point (Need Min, Mac, Current / Most recent)
       var points = gEnter.selectAll('circle.nv-point')
-          .data(function(d) { return d.filter(function(p,i) { return y.domain().indexOf(getY(p,i)) != -1 || getX(p,i) == x.domain()[1]  }) });
+          .data(d => d.filter((p, i) => y.domain().indexOf(getY(p,i)) != -1 || getX(p,i) == x.domain()[1]));
       points.enter().append('circle').attr('class', 'nv-point');
       points.exit().remove();
       points
-          .attr('cx', function(d,i) { return x(getX(d,i)) })
-          .attr('cy', function(d,i) { return y(getY(d,i)) })
+          .attr('cx', (d, i) => x(getX(d,i)))
+          .attr('cy', (d, i) => y(getY(d,i)))
           .attr('r', 2)
-          .style('stroke', function(d,i) { return d.x == x.domain()[1] ? '#444' : d.y == y.domain()[0] ? '#d62728' : '#2ca02c' })
-          .style('fill', function(d,i) { return d.x == x.domain()[1] ? '#444' : d.y == y.domain()[0] ? '#d62728' : '#2ca02c' });
+          .style('stroke', (d, i) => d.x == x.domain()[1] ? '#444' : d.y == y.domain()[0] ? '#d62728' : '#2ca02c')
+          .style('fill', (d, i) => d.x == x.domain()[1] ? '#444' : d.y == y.domain()[0] ? '#d62728' : '#2ca02c');
     });
 
     return chart;

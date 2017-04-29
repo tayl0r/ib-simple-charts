@@ -1,11 +1,11 @@
 
-nv.models.legend = function() {
-  var margin = {top: 5, right: 0, bottom: 5, left: 0},
-      width = 400,
-      height = 20,
-      getKey = function(d) { return d.key },
-      color = nv.utils.defaultColor(),
-      align = true;
+nv.models.legend = () => {
+  var margin = {top: 5, right: 0, bottom: 5, left: 0};
+  var width = 400;
+  var height = 20;
+  var getKey = d => d.key;
+  var color = nv.utils.defaultColor();
+  var align = true;
 
   var dispatch = d3.dispatch('legendClick', 'legendDblclick', 'legendMouseover', 'legendMouseout'); //TODO: theres are really element or series events, there are currently no 'LEGEND' events (as in entire legend)... decide if they are needed
 
@@ -22,23 +22,23 @@ nv.models.legend = function() {
 
 
       var series = g.selectAll('.nv-series')
-          .data(function(d) { return d });
+          .data(d => d);
       var seriesEnter = series.enter().append('g').attr('class', 'nv-series')
-          .on('mouseover', function(d,i) {
+          .on('mouseover', (d, i) => {
             dispatch.legendMouseover(d,i);  //TODO: Make consistent with other event objects
           })
-          .on('mouseout', function(d,i) {
+          .on('mouseout', (d, i) => {
             dispatch.legendMouseout(d,i);
           })
-          .on('click', function(d,i) {
+          .on('click', (d, i) => {
             dispatch.legendClick(d,i);
           })
-          .on('dblclick', function(d,i) {
+          .on('dblclick', (d, i) => {
             dispatch.legendDblclick(d,i);
           });
       seriesEnter.append('circle')
-          .style('fill', function(d,i) { return d.color || color(d,i)})
-          .style('stroke', function(d,i) { return d.color || color(d, i) })
+          .style('fill', (d, i) => d.color || color(d,i))
+          .style('stroke', (d, i) => d.color || color(d, i))
           .style('stroke-width', 2)
           .attr('r', 5);
       seriesEnter.append('text')
@@ -46,7 +46,7 @@ nv.models.legend = function() {
           .attr('text-anchor', 'start')
           .attr('dy', '.32em')
           .attr('dx', '8');
-      series.classed('disabled', function(d) { return d.disabled });
+      series.classed('disabled', d => d.disabled);
       series.exit().remove();
 
 
@@ -81,9 +81,7 @@ nv.models.legend = function() {
               columnWidths[k % seriesPerRow] = seriesWidths[k];
           }
 
-          legendWidth = columnWidths.reduce(function(prev, cur, index, array) {
-                          return prev + cur;
-                        });
+          legendWidth = columnWidths.reduce((prev, cur, index, array) => prev + cur);
         }
         //console.log(columnWidths, legendWidth, seriesPerRow);
 
@@ -94,20 +92,17 @@ nv.models.legend = function() {
         }
 
         series
-            .attr('transform', function(d, i) {
-              return 'translate(' + xPositions[i % seriesPerRow] + ',' + (5 + Math.floor(i / seriesPerRow) * 20) + ')';
-            });
+            .attr('transform', (d, i) => 'translate(' + xPositions[i % seriesPerRow] + ',' + (5 + Math.floor(i / seriesPerRow) * 20) + ')');
 
         //position legend as far right as possible within the total width
         g.attr('transform', 'translate(' + (width - margin.right - legendWidth) + ',' + margin.top + ')');
 
         height = margin.top + margin.bottom + (Math.ceil(seriesWidths.length / seriesPerRow) * 20);
       } else {
-
-        var ypos = 5,
-            newxpos = 5,
-            maxwidth = 0,
-            xpos;
+        var ypos = 5;
+        var newxpos = 5;
+        var maxwidth = 0;
+        var xpos;
         series
             .attr('transform', function(d, i) {
               var length = d3.select(this).select('text').node().getComputedTextLength() + 28;

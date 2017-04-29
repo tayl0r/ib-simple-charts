@@ -1,36 +1,36 @@
 
-nv.models.discreteBarChart = function() {
-  var margin = {top: 10, right: 10, bottom: 50, left: 60},
-      width = null,
-      height = null,
-      color = nv.utils.getColor(), //a function that gets color for a datum
-      staggerLabels = false,
-      tooltips = true,
-      tooltip = function(key, x, y, e, graph) { 
-        return '<h3>' + x + '</h3>' +
-               '<p>' +  y + '</p>'
-      },
-      noData = "No Data Available."
-      ;
+nv.models.discreteBarChart = () => {
+  var margin = {top: 10, right: 10, bottom: 50, left: 60};
+  var width = null;
+  var height = null;
 
+  var //a function that gets color for a datum
+  color = nv.utils.getColor();
 
-  var discretebar = nv.models.discreteBar(),
-      x = discretebar.xScale(),
-      y = discretebar.yScale(),
-      xAxis = nv.models.axis().scale(x).orient('bottom').highlightZero(false).showMaxMin(false),
-      yAxis = nv.models.axis().scale(y).orient('left'),
-      dispatch = d3.dispatch('tooltipShow', 'tooltipHide');
+  var staggerLabels = false;
+  var tooltips = true;
 
-  xAxis.tickFormat(function(d) { return d });
+  var tooltip = (key, x, y, e, graph) => '<h3>' + x + '</h3>' +
+         '<p>' +  y + '</p>';
+
+  var noData = "No Data Available.";
+  var discretebar = nv.models.discreteBar();
+  var x = discretebar.xScale();
+  var y = discretebar.yScale();
+  var xAxis = nv.models.axis().scale(x).orient('bottom').highlightZero(false).showMaxMin(false);
+  var yAxis = nv.models.axis().scale(y).orient('left');
+  var dispatch = d3.dispatch('tooltipShow', 'tooltipHide');
+
+  xAxis.tickFormat(d => d);
   yAxis.tickFormat(d3.format(',.1f'));
 
 
-  var showTooltip = function(e, offsetElement) {
-    var left = e.pos[0] + ( offsetElement.offsetLeft || 0 ),
-        top = e.pos[1] + ( offsetElement.offsetTop || 0),
-        x = xAxis.tickFormat()(discretebar.x()(e.point, e.pointIndex)),
-        y = yAxis.tickFormat()(discretebar.y()(e.point, e.pointIndex)),
-        content = tooltip(e.series.key, x, y, e, chart);
+  var showTooltip = (e, offsetElement) => {
+    var left = e.pos[0] + ( offsetElement.offsetLeft || 0 );
+    var top = e.pos[1] + ( offsetElement.offsetTop || 0);
+    var x = xAxis.tickFormat()(discretebar.x()(e.point, e.pointIndex));
+    var y = yAxis.tickFormat()(discretebar.y()(e.point, e.pointIndex));
+    var content = tooltip(e.series.key, x, y, e, chart);
 
     nv.tooltip.show([left, top], content, e.value < 0 ? 'n' : 's');
   };
@@ -44,19 +44,20 @@ nv.models.discreteBarChart = function() {
 
   function chart(selection) {
     selection.each(function(data) {
-      var container = d3.select(this),
-          that = this;
+      var container = d3.select(this);
+      var that = this;
 
       var availableWidth = (width  || parseInt(container.style('width')) || 960)
-                             - margin.left - margin.right,
-          availableHeight = (height || parseInt(container.style('height')) || 400)
-                             - margin.top - margin.bottom;
+                             - margin.left - margin.right;
+
+      var availableHeight = (height || parseInt(container.style('height')) || 400)
+                         - margin.top - margin.bottom;
 
 
       //------------------------------------------------------------
       // Display No Data message if there's nothing to show.
 
-      if (!data || !data.length || !data.filter(function(d) { return d.values.length }).length) {
+      if (!data || !data.length || !data.filter(d => d.values.length).length) {
         container.append('text')
           .attr('class', 'nvd3 nv-noData')
           .attr('x', availableWidth / 2)
@@ -93,7 +94,7 @@ nv.models.discreteBarChart = function() {
       g.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
       var barsWrap = g.select('.nv-barsWrap')
-          .datum(data.filter(function(d) { return !d.disabled }))
+          .datum(data.filter(d => !d.disabled))
 
 
       d3.transition(barsWrap).call(discretebar);
@@ -125,7 +126,7 @@ nv.models.discreteBarChart = function() {
       if (staggerLabels)
         xTicks
             .selectAll('text')
-            .attr('transform', function(d,i,j) { return 'translate(0,' + (j % 2 == 0 ? '0' : '12') + ')' })
+            .attr('transform', (d, i, j) => 'translate(0,' + (j % 2 == 0 ? '0' : '12') + ')')
 
       yAxis
         .ticks( availableHeight / 36 )
@@ -135,22 +136,21 @@ nv.models.discreteBarChart = function() {
           .call(yAxis);
 
 
-      discretebar.dispatch.on('elementMouseover.tooltip', function(e) {
+      discretebar.dispatch.on('elementMouseover.tooltip', e => {
         e.pos = [e.pos[0] +  margin.left, e.pos[1] + margin.top];
         dispatch.tooltipShow(e);
       });
-      if (tooltips) dispatch.on('tooltipShow', function(e) { showTooltip(e, that.parentNode) } ); // TODO: maybe merge with above?
+      if (tooltips) dispatch.on('tooltipShow', e => { showTooltip(e, that.parentNode) } ); // TODO: maybe merge with above?
 
-      discretebar.dispatch.on('elementMouseout.tooltip', function(e) {
+      discretebar.dispatch.on('elementMouseout.tooltip', e => {
         dispatch.tooltipHide(e);
       });
       if (tooltips) dispatch.on('tooltipHide', nv.tooltip.cleanup);
 
 
       //TODO: decide if this makes sense to add into all the models for ease of updating (updating without needing the selection)
-      chart.update = function() { selection.transition().call(chart); };
+      chart.update = () => { selection.transition().call(chart); };
       chart.container = this; // I need a reference to the container in order to have outside code check if the chart is visible or not
-
     });
 
     return chart;

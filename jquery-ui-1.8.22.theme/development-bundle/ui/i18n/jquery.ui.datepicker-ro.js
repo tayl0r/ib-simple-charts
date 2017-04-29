@@ -3,7 +3,7 @@
  * Written by Edmond L. (ll_edmond@walla.com)
  * and Ionut G. Stan (ionut.g.stan@gmail.com)
  */
-jQuery(function($){
+jQuery($ => {
 	$.datepicker.regional['ro'] = {
 		closeText: 'Închide',
 		prevText: '&laquo; Luna precedentă',

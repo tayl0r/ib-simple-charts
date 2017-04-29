@@ -11,19 +11,23 @@
  *	jquery.ui.core.js
  *	jquery.ui.widget.js
  */
-(function( $, undefined ) {
+((($, undefined) => {
+    var lastActive;
+    var startXPos;
+    var startYPos;
+    var clickDragged;
+    var baseClasses = "ui-button ui-widget ui-state-default ui-corner-all";
+    var stateClasses = "ui-state-hover ui-state-active ";
+    var typeClasses = "ui-button-icons-only ui-button-icon-only ui-button-text-icons ui-button-text-icon-primary ui-button-text-icon-secondary ui-button-text-only";
 
-var lastActive, startXPos, startYPos, clickDragged,
-	baseClasses = "ui-button ui-widget ui-state-default ui-corner-all",
-	stateClasses = "ui-state-hover ui-state-active ",
-	typeClasses = "ui-button-icons-only ui-button-icon-only ui-button-text-icons ui-button-text-icon-primary ui-button-text-icon-secondary ui-button-text-only",
-	formResetHandler = function() {
+    var formResetHandler = function() {
 		var buttons = $( this ).find( ":ui-button" );
-		setTimeout(function() {
+		setTimeout(() => {
 			buttons.button( "refresh" );
 		}, 1 );
-	},
-	radioGroup = function( radio ) {
+	};
+
+    var radioGroup = radio => {
 		var name = radio.name,
 			form = radio.form,
 			radios = $( [] );
@@ -40,375 +44,377 @@ var lastActive, startXPos, startYPos, clickDragged,
 		return radios;
 	};
 
-$.widget( "ui.button", {
-	options: {
-		disabled: null,
-		text: true,
-		label: null,
-		icons: {
-			primary: null,
-			secondary: null
-		}
-	},
-	_create: function() {
-		this.element.closest( "form" )
-			.unbind( "reset.button" )
-			.bind( "reset.button", formResetHandler );
+    $.widget( "ui.button", {
+        options: {
+            disabled: null,
+            text: true,
+            label: null,
+            icons: {
+                primary: null,
+                secondary: null
+            }
+        },
+        _create() {
+            this.element.closest( "form" )
+                .unbind( "reset.button" )
+                .bind( "reset.button", formResetHandler );
 
-		if ( typeof this.options.disabled !== "boolean" ) {
-			this.options.disabled = !!this.element.propAttr( "disabled" );
-		} else {
-			this.element.propAttr( "disabled", this.options.disabled );
-		}
+            if ( typeof this.options.disabled !== "boolean" ) {
+                this.options.disabled = !!this.element.propAttr( "disabled" );
+            } else {
+                this.element.propAttr( "disabled", this.options.disabled );
+            }
 
-		this._determineButtonType();
-		this.hasTitle = !!this.buttonElement.attr( "title" );
+            this._determineButtonType();
+            this.hasTitle = !!this.buttonElement.attr( "title" );
 
-		var self = this,
-			options = this.options,
-			toggleButton = this.type === "checkbox" || this.type === "radio",
-			hoverClass = "ui-state-hover" + ( !toggleButton ? " ui-state-active" : "" ),
-			focusClass = "ui-state-focus";
+            var self = this;
+            var options = this.options;
+            var toggleButton = this.type === "checkbox" || this.type === "radio";
+            var hoverClass = "ui-state-hover" + ( !toggleButton ? " ui-state-active" : "" );
+            var focusClass = "ui-state-focus";
 
-		if ( options.label === null ) {
-			options.label = this.buttonElement.html();
-		}
+            if ( options.label === null ) {
+                options.label = this.buttonElement.html();
+            }
 
-		this.buttonElement
-			.addClass( baseClasses )
-			.attr( "role", "button" )
-			.bind( "mouseenter.button", function() {
-				if ( options.disabled ) {
-					return;
-				}
-				$( this ).addClass( "ui-state-hover" );
-				if ( this === lastActive ) {
-					$( this ).addClass( "ui-state-active" );
-				}
-			})
-			.bind( "mouseleave.button", function() {
-				if ( options.disabled ) {
-					return;
-				}
-				$( this ).removeClass( hoverClass );
-			})
-			.bind( "click.button", function( event ) {
-				if ( options.disabled ) {
-					event.preventDefault();
-					event.stopImmediatePropagation();
-				}
-			});
+            this.buttonElement
+                .addClass( baseClasses )
+                .attr( "role", "button" )
+                .bind( "mouseenter.button", function() {
+                    if ( options.disabled ) {
+                        return;
+                    }
+                    $( this ).addClass( "ui-state-hover" );
+                    if ( this === lastActive ) {
+                        $( this ).addClass( "ui-state-active" );
+                    }
+                })
+                .bind( "mouseleave.button", function() {
+                    if ( options.disabled ) {
+                        return;
+                    }
+                    $( this ).removeClass( hoverClass );
+                })
+                .bind( "click.button", event => {
+                    if ( options.disabled ) {
+                        event.preventDefault();
+                        event.stopImmediatePropagation();
+                    }
+                });
 
-		this.element
-			.bind( "focus.button", function() {
-				// no need to check disabled, focus won't be triggered anyway
-				self.buttonElement.addClass( focusClass );
-			})
-			.bind( "blur.button", function() {
-				self.buttonElement.removeClass( focusClass );
-			});
+            this.element
+                .bind( "focus.button", () => {
+                    // no need to check disabled, focus won't be triggered anyway
+                    self.buttonElement.addClass( focusClass );
+                })
+                .bind( "blur.button", () => {
+                    self.buttonElement.removeClass( focusClass );
+                });
 
-		if ( toggleButton ) {
-			this.element.bind( "change.button", function() {
-				if ( clickDragged ) {
-					return;
-				}
-				self.refresh();
-			});
-			// if mouse moves between mousedown and mouseup (drag) set clickDragged flag
-			// prevents issue where button state changes but checkbox/radio checked state
-			// does not in Firefox (see ticket #6970)
-			this.buttonElement
-				.bind( "mousedown.button", function( event ) {
-					if ( options.disabled ) {
-						return;
-					}
-					clickDragged = false;
-					startXPos = event.pageX;
-					startYPos = event.pageY;
-				})
-				.bind( "mouseup.button", function( event ) {
-					if ( options.disabled ) {
-						return;
-					}
-					if ( startXPos !== event.pageX || startYPos !== event.pageY ) {
-						clickDragged = true;
-					}
-			});
-		}
+            if ( toggleButton ) {
+                this.element.bind( "change.button", () => {
+                    if ( clickDragged ) {
+                        return;
+                    }
+                    self.refresh();
+                });
+                // if mouse moves between mousedown and mouseup (drag) set clickDragged flag
+                // prevents issue where button state changes but checkbox/radio checked state
+                // does not in Firefox (see ticket #6970)
+                this.buttonElement
+                    .bind( "mousedown.button", event => {
+                        if ( options.disabled ) {
+                            return;
+                        }
+                        clickDragged = false;
+                        startXPos = event.pageX;
+                        startYPos = event.pageY;
+                    })
+                    .bind( "mouseup.button", event => {
+                        if ( options.disabled ) {
+                            return;
+                        }
+                        if ( startXPos !== event.pageX || startYPos !== event.pageY ) {
+                            clickDragged = true;
+                        }
+                });
+            }
 
-		if ( this.type === "checkbox" ) {
-			this.buttonElement.bind( "click.button", function() {
-				if ( options.disabled || clickDragged ) {
-					return false;
-				}
-				$( this ).toggleClass( "ui-state-active" );
-				self.buttonElement.attr( "aria-pressed", self.element[0].checked );
-			});
-		} else if ( this.type === "radio" ) {
-			this.buttonElement.bind( "click.button", function() {
-				if ( options.disabled || clickDragged ) {
-					return false;
-				}
-				$( this ).addClass( "ui-state-active" );
-				self.buttonElement.attr( "aria-pressed", "true" );
+            if ( this.type === "checkbox" ) {
+                this.buttonElement.bind( "click.button", function() {
+                    if ( options.disabled || clickDragged ) {
+                        return false;
+                    }
+                    $( this ).toggleClass( "ui-state-active" );
+                    self.buttonElement.attr( "aria-pressed", self.element[0].checked );
+                });
+            } else if ( this.type === "radio" ) {
+                this.buttonElement.bind( "click.button", function() {
+                    if ( options.disabled || clickDragged ) {
+                        return false;
+                    }
+                    $( this ).addClass( "ui-state-active" );
+                    self.buttonElement.attr( "aria-pressed", "true" );
 
-				var radio = self.element[ 0 ];
-				radioGroup( radio )
-					.not( radio )
-					.map(function() {
-						return $( this ).button( "widget" )[ 0 ];
-					})
-					.removeClass( "ui-state-active" )
-					.attr( "aria-pressed", "false" );
-			});
-		} else {
-			this.buttonElement
-				.bind( "mousedown.button", function() {
-					if ( options.disabled ) {
-						return false;
-					}
-					$( this ).addClass( "ui-state-active" );
-					lastActive = this;
-					$( document ).one( "mouseup", function() {
-						lastActive = null;
-					});
-				})
-				.bind( "mouseup.button", function() {
-					if ( options.disabled ) {
-						return false;
-					}
-					$( this ).removeClass( "ui-state-active" );
-				})
-				.bind( "keydown.button", function(event) {
-					if ( options.disabled ) {
-						return false;
-					}
-					if ( event.keyCode == $.ui.keyCode.SPACE || event.keyCode == $.ui.keyCode.ENTER ) {
-						$( this ).addClass( "ui-state-active" );
-					}
-				})
-				.bind( "keyup.button", function() {
-					$( this ).removeClass( "ui-state-active" );
-				});
+                    var radio = self.element[ 0 ];
+                    radioGroup( radio )
+                        .not( radio )
+                        .map(function() {
+                            return $( this ).button( "widget" )[ 0 ];
+                        })
+                        .removeClass( "ui-state-active" )
+                        .attr( "aria-pressed", "false" );
+                });
+            } else {
+                this.buttonElement
+                    .bind( "mousedown.button", function() {
+                        if ( options.disabled ) {
+                            return false;
+                        }
+                        $( this ).addClass( "ui-state-active" );
+                        lastActive = this;
+                        $( document ).one( "mouseup", () => {
+                            lastActive = null;
+                        });
+                    })
+                    .bind( "mouseup.button", function() {
+                        if ( options.disabled ) {
+                            return false;
+                        }
+                        $( this ).removeClass( "ui-state-active" );
+                    })
+                    .bind( "keydown.button", function(event) {
+                        if ( options.disabled ) {
+                            return false;
+                        }
+                        if ( event.keyCode == $.ui.keyCode.SPACE || event.keyCode == $.ui.keyCode.ENTER ) {
+                            $( this ).addClass( "ui-state-active" );
+                        }
+                    })
+                    .bind( "keyup.button", function() {
+                        $( this ).removeClass( "ui-state-active" );
+                    });
 
-			if ( this.buttonElement.is("a") ) {
-				this.buttonElement.keyup(function(event) {
-					if ( event.keyCode === $.ui.keyCode.SPACE ) {
-						// TODO pass through original event correctly (just as 2nd argument doesn't work)
-						$( this ).click();
-					}
-				});
-			}
-		}
+                if ( this.buttonElement.is("a") ) {
+                    this.buttonElement.keyup(function(event) {
+                        if ( event.keyCode === $.ui.keyCode.SPACE ) {
+                            // TODO pass through original event correctly (just as 2nd argument doesn't work)
+                            $( this ).click();
+                        }
+                    });
+                }
+            }
 
-		// TODO: pull out $.Widget's handling for the disabled option into
-		// $.Widget.prototype._setOptionDisabled so it's easy to proxy and can
-		// be overridden by individual plugins
-		this._setOption( "disabled", options.disabled );
-		this._resetButton();
-	},
+            // TODO: pull out $.Widget's handling for the disabled option into
+            // $.Widget.prototype._setOptionDisabled so it's easy to proxy and can
+            // be overridden by individual plugins
+            this._setOption( "disabled", options.disabled );
+            this._resetButton();
+        },
 
-	_determineButtonType: function() {
+        _determineButtonType() {
 
-		if ( this.element.is(":checkbox") ) {
-			this.type = "checkbox";
-		} else if ( this.element.is(":radio") ) {
-			this.type = "radio";
-		} else if ( this.element.is("input") ) {
-			this.type = "input";
-		} else {
-			this.type = "button";
-		}
+            if ( this.element.is(":checkbox") ) {
+                this.type = "checkbox";
+            } else if ( this.element.is(":radio") ) {
+                this.type = "radio";
+            } else if ( this.element.is("input") ) {
+                this.type = "input";
+            } else {
+                this.type = "button";
+            }
 
-		if ( this.type === "checkbox" || this.type === "radio" ) {
-			// we don't search against the document in case the element
-			// is disconnected from the DOM
-			var ancestor = this.element.parents().filter(":last"),
-				labelSelector = "label[for='" + this.element.attr("id") + "']";
-			this.buttonElement = ancestor.find( labelSelector );
-			if ( !this.buttonElement.length ) {
-				ancestor = ancestor.length ? ancestor.siblings() : this.element.siblings();
-				this.buttonElement = ancestor.filter( labelSelector );
-				if ( !this.buttonElement.length ) {
-					this.buttonElement = ancestor.find( labelSelector );
-				}
-			}
-			this.element.addClass( "ui-helper-hidden-accessible" );
+            if ( this.type === "checkbox" || this.type === "radio" ) {
+                // we don't search against the document in case the element
+                // is disconnected from the DOM
+                var ancestor = this.element.parents().filter(":last");
 
-			var checked = this.element.is( ":checked" );
-			if ( checked ) {
-				this.buttonElement.addClass( "ui-state-active" );
-			}
-			this.buttonElement.attr( "aria-pressed", checked );
-		} else {
-			this.buttonElement = this.element;
-		}
-	},
+                var labelSelector = "label[for='" + this.element.attr("id") + "']";
+                this.buttonElement = ancestor.find( labelSelector );
+                if ( !this.buttonElement.length ) {
+                    ancestor = ancestor.length ? ancestor.siblings() : this.element.siblings();
+                    this.buttonElement = ancestor.filter( labelSelector );
+                    if ( !this.buttonElement.length ) {
+                        this.buttonElement = ancestor.find( labelSelector );
+                    }
+                }
+                this.element.addClass( "ui-helper-hidden-accessible" );
 
-	widget: function() {
-		return this.buttonElement;
-	},
+                var checked = this.element.is( ":checked" );
+                if ( checked ) {
+                    this.buttonElement.addClass( "ui-state-active" );
+                }
+                this.buttonElement.attr( "aria-pressed", checked );
+            } else {
+                this.buttonElement = this.element;
+            }
+        },
 
-	destroy: function() {
-		this.element
-			.removeClass( "ui-helper-hidden-accessible" );
-		this.buttonElement
-			.removeClass( baseClasses + " " + stateClasses + " " + typeClasses )
-			.removeAttr( "role" )
-			.removeAttr( "aria-pressed" )
-			.html( this.buttonElement.find(".ui-button-text").html() );
+        widget() {
+            return this.buttonElement;
+        },
 
-		if ( !this.hasTitle ) {
-			this.buttonElement.removeAttr( "title" );
-		}
+        destroy() {
+            this.element
+                .removeClass( "ui-helper-hidden-accessible" );
+            this.buttonElement
+                .removeClass( baseClasses + " " + stateClasses + " " + typeClasses )
+                .removeAttr( "role" )
+                .removeAttr( "aria-pressed" )
+                .html( this.buttonElement.find(".ui-button-text").html() );
 
-		$.Widget.prototype.destroy.call( this );
-	},
+            if ( !this.hasTitle ) {
+                this.buttonElement.removeAttr( "title" );
+            }
 
-	_setOption: function( key, value ) {
-		$.Widget.prototype._setOption.apply( this, arguments );
-		if ( key === "disabled" ) {
-			if ( value ) {
-				this.element.propAttr( "disabled", true );
-			} else {
-				this.element.propAttr( "disabled", false );
-			}
-			return;
-		}
-		this._resetButton();
-	},
+            $.Widget.prototype.destroy.call( this );
+        },
 
-	refresh: function() {
-		var isDisabled = this.element.is( ":disabled" );
-		if ( isDisabled !== this.options.disabled ) {
-			this._setOption( "disabled", isDisabled );
-		}
-		if ( this.type === "radio" ) {
-			radioGroup( this.element[0] ).each(function() {
-				if ( $( this ).is( ":checked" ) ) {
-					$( this ).button( "widget" )
-						.addClass( "ui-state-active" )
-						.attr( "aria-pressed", "true" );
-				} else {
-					$( this ).button( "widget" )
-						.removeClass( "ui-state-active" )
-						.attr( "aria-pressed", "false" );
-				}
-			});
-		} else if ( this.type === "checkbox" ) {
-			if ( this.element.is( ":checked" ) ) {
-				this.buttonElement
-					.addClass( "ui-state-active" )
-					.attr( "aria-pressed", "true" );
-			} else {
-				this.buttonElement
-					.removeClass( "ui-state-active" )
-					.attr( "aria-pressed", "false" );
-			}
-		}
-	},
+        _setOption(key, value) {
+            $.Widget.prototype._setOption.apply( this, arguments );
+            if ( key === "disabled" ) {
+                if ( value ) {
+                    this.element.propAttr( "disabled", true );
+                } else {
+                    this.element.propAttr( "disabled", false );
+                }
+                return;
+            }
+            this._resetButton();
+        },
 
-	_resetButton: function() {
-		if ( this.type === "input" ) {
-			if ( this.options.label ) {
-				this.element.val( this.options.label );
-			}
-			return;
-		}
-		var buttonElement = this.buttonElement.removeClass( typeClasses ),
-			buttonText = $( "<span></span>", this.element[0].ownerDocument )
+        refresh() {
+            var isDisabled = this.element.is( ":disabled" );
+            if ( isDisabled !== this.options.disabled ) {
+                this._setOption( "disabled", isDisabled );
+            }
+            if ( this.type === "radio" ) {
+                radioGroup( this.element[0] ).each(function() {
+                    if ( $( this ).is( ":checked" ) ) {
+                        $( this ).button( "widget" )
+                            .addClass( "ui-state-active" )
+                            .attr( "aria-pressed", "true" );
+                    } else {
+                        $( this ).button( "widget" )
+                            .removeClass( "ui-state-active" )
+                            .attr( "aria-pressed", "false" );
+                    }
+                });
+            } else if ( this.type === "checkbox" ) {
+                if ( this.element.is( ":checked" ) ) {
+                    this.buttonElement
+                        .addClass( "ui-state-active" )
+                        .attr( "aria-pressed", "true" );
+                } else {
+                    this.buttonElement
+                        .removeClass( "ui-state-active" )
+                        .attr( "aria-pressed", "false" );
+                }
+            }
+        },
+
+        _resetButton() {
+            if ( this.type === "input" ) {
+                if ( this.options.label ) {
+                    this.element.val( this.options.label );
+                }
+                return;
+            }
+            var buttonElement = this.buttonElement.removeClass( typeClasses );
+
+            var buttonText = $( "<span></span>", this.element[0].ownerDocument )
 				.addClass( "ui-button-text" )
 				.html( this.options.label )
 				.appendTo( buttonElement.empty() )
-				.text(),
-			icons = this.options.icons,
-			multipleIcons = icons.primary && icons.secondary,
-			buttonClasses = [];  
+				.text();
 
-		if ( icons.primary || icons.secondary ) {
-			if ( this.options.text ) {
-				buttonClasses.push( "ui-button-text-icon" + ( multipleIcons ? "s" : ( icons.primary ? "-primary" : "-secondary" ) ) );
-			}
+            var icons = this.options.icons;
+            var multipleIcons = icons.primary && icons.secondary;
+            var buttonClasses = [];
 
-			if ( icons.primary ) {
-				buttonElement.prepend( "<span class='ui-button-icon-primary ui-icon " + icons.primary + "'></span>" );
-			}
+            if ( icons.primary || icons.secondary ) {
+                if ( this.options.text ) {
+                    buttonClasses.push( "ui-button-text-icon" + ( multipleIcons ? "s" : ( icons.primary ? "-primary" : "-secondary" ) ) );
+                }
 
-			if ( icons.secondary ) {
-				buttonElement.append( "<span class='ui-button-icon-secondary ui-icon " + icons.secondary + "'></span>" );
-			}
+                if ( icons.primary ) {
+                    buttonElement.prepend( "<span class='ui-button-icon-primary ui-icon " + icons.primary + "'></span>" );
+                }
 
-			if ( !this.options.text ) {
-				buttonClasses.push( multipleIcons ? "ui-button-icons-only" : "ui-button-icon-only" );
+                if ( icons.secondary ) {
+                    buttonElement.append( "<span class='ui-button-icon-secondary ui-icon " + icons.secondary + "'></span>" );
+                }
 
-				if ( !this.hasTitle ) {
-					buttonElement.attr( "title", buttonText );
-				}
-			}
-		} else {
-			buttonClasses.push( "ui-button-text-only" );
-		}
-		buttonElement.addClass( buttonClasses.join( " " ) );
-	}
-});
+                if ( !this.options.text ) {
+                    buttonClasses.push( multipleIcons ? "ui-button-icons-only" : "ui-button-icon-only" );
 
-$.widget( "ui.buttonset", {
-	options: {
-		items: ":button, :submit, :reset, :checkbox, :radio, a, :data(button)"
-	},
+                    if ( !this.hasTitle ) {
+                        buttonElement.attr( "title", buttonText );
+                    }
+                }
+            } else {
+                buttonClasses.push( "ui-button-text-only" );
+            }
+            buttonElement.addClass( buttonClasses.join( " " ) );
+        }
+    });
 
-	_create: function() {
-		this.element.addClass( "ui-buttonset" );
-	},
-	
-	_init: function() {
-		this.refresh();
-	},
+    $.widget( "ui.buttonset", {
+        options: {
+            items: ":button, :submit, :reset, :checkbox, :radio, a, :data(button)"
+        },
 
-	_setOption: function( key, value ) {
-		if ( key === "disabled" ) {
-			this.buttons.button( "option", key, value );
-		}
+        _create() {
+            this.element.addClass( "ui-buttonset" );
+        },
+        
+        _init() {
+            this.refresh();
+        },
 
-		$.Widget.prototype._setOption.apply( this, arguments );
-	},
-	
-	refresh: function() {
-		var rtl = this.element.css( "direction" ) === "rtl";
-		
-		this.buttons = this.element.find( this.options.items )
-			.filter( ":ui-button" )
-				.button( "refresh" )
-			.end()
-			.not( ":ui-button" )
-				.button()
-			.end()
-			.map(function() {
-				return $( this ).button( "widget" )[ 0 ];
-			})
-				.removeClass( "ui-corner-all ui-corner-left ui-corner-right" )
-				.filter( ":first" )
-					.addClass( rtl ? "ui-corner-right" : "ui-corner-left" )
-				.end()
-				.filter( ":last" )
-					.addClass( rtl ? "ui-corner-left" : "ui-corner-right" )
-				.end()
-			.end();
-	},
+        _setOption(key, value) {
+            if ( key === "disabled" ) {
+                this.buttons.button( "option", key, value );
+            }
 
-	destroy: function() {
-		this.element.removeClass( "ui-buttonset" );
-		this.buttons
-			.map(function() {
-				return $( this ).button( "widget" )[ 0 ];
-			})
-				.removeClass( "ui-corner-left ui-corner-right" )
-			.end()
-			.button( "destroy" );
+            $.Widget.prototype._setOption.apply( this, arguments );
+        },
+        
+        refresh() {
+            var rtl = this.element.css( "direction" ) === "rtl";
+            
+            this.buttons = this.element.find( this.options.items )
+                .filter( ":ui-button" )
+                    .button( "refresh" )
+                .end()
+                .not( ":ui-button" )
+                    .button()
+                .end()
+                .map(function() {
+                    return $( this ).button( "widget" )[ 0 ];
+                })
+                    .removeClass( "ui-corner-all ui-corner-left ui-corner-right" )
+                    .filter( ":first" )
+                        .addClass( rtl ? "ui-corner-right" : "ui-corner-left" )
+                    .end()
+                    .filter( ":last" )
+                        .addClass( rtl ? "ui-corner-left" : "ui-corner-right" )
+                    .end()
+                .end();
+        },
 
-		$.Widget.prototype.destroy.call( this );
-	}
-});
+        destroy() {
+            this.element.removeClass( "ui-buttonset" );
+            this.buttons
+                .map(function() {
+                    return $( this ).button( "widget" )[ 0 ];
+                })
+                    .removeClass( "ui-corner-left ui-corner-right" )
+                .end()
+                .button( "destroy" );
 
-}( jQuery ) );
+            $.Widget.prototype.destroy.call( this );
+        }
+    });
+})( jQuery ) );

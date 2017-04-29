@@ -18,11 +18,11 @@ nv.dispatch = d3.dispatch('render_start', 'render_end');
 //  Development render timers - disabled if dev = false
 
 if (nv.dev) {
-  nv.dispatch.on('render_start', function(e) {
+  nv.dispatch.on('render_start', e => {
     nv.logs.startTime = +new Date();
   });
 
-  nv.dispatch.on('render_end', function(e) {
+  nv.dispatch.on('render_end', e => {
     nv.logs.endTime = +new Date();
     nv.logs.totalTime = nv.logs.endTime - nv.logs.startTime;
     nv.log('total', nv.logs.totalTime); // used for development, to keep track of graph generation times
@@ -33,9 +33,9 @@ if (nv.dev) {
 //  Public Core NV functions
 
 // Logs all arguments, and returns the last so you can test things in place
-nv.log = function() {
-  if (nv.dev && console.log) console.log.apply(console, arguments);
-  return arguments[arguments.length - 1];
+nv.log = function(...args) {
+  if (nv.dev && console.log) console.log(...args);
+  return args[args.length - 1];
 };
 
 
@@ -45,7 +45,7 @@ nv.render = function render(step) {
   render.active = true;
   nv.dispatch.render_start();
 
-  setTimeout(function() {
+  setTimeout(function(...args) {
     var chart;
 
     for (var i = 0; i < step && (graph = render.queue[i]); i++) {
@@ -56,7 +56,7 @@ nv.render = function render(step) {
 
     render.queue.splice(0, i);
 
-    if (render.queue.length) setTimeout(arguments.callee, 0);
+    if (render.queue.length) setTimeout(args.callee, 0);
     else { nv.render.active = false; nv.dispatch.render_end(); }
   }, 0);
 };
@@ -72,17 +72,18 @@ nv.addGraph = function(obj) {
   if (!nv.render.active) nv.render();
 };
 
-nv.identity = function(d) { return d; };
+nv.identity = d => d;
 
-nv.strip = function(s) { return s.replace(/(\s|&)/g,''); };
+nv.strip = s => s.replace(/(\s|&)/g,'');
 
 function daysInMonth(month,year) {
   return (new Date(year, month+1, 0)).getDate();
 }
 
 function d3_time_range(floor, step, number) {
-  return function(t0, t1, dt) {
-    var time = floor(t0), times = [];
+  return (t0, t1, dt) => {
+    var time = floor(t0);
+    var times = [];
     if (time < t0) step(time);
     if (dt > 1) {
       while (time < t1) {
@@ -97,15 +98,11 @@ function d3_time_range(floor, step, number) {
   };
 }
 
-d3.time.monthEnd = function(date) {
-  return new Date(date.getFullYear(), date.getMonth(), 0);
-};
+d3.time.monthEnd = date => new Date(date.getFullYear(), date.getMonth(), 0);
 
-d3.time.monthEnds = d3_time_range(d3.time.monthEnd, function(date) {
+d3.time.monthEnds = d3_time_range(d3.time.monthEnd, date => {
     date.setUTCDate(date.getUTCDate() + 1);
     date.setDate(daysInMonth(date.getMonth() + 1, date.getFullYear()));
-  }, function(date) {
-    return date.getMonth();
-  }
+  }, date => date.getMonth()
 );
 

@@ -1,31 +1,48 @@
 
-nv.models.line = function() {
+nv.models.line = () => {
   //Default Settings
-  var margin = {top: 0, right: 0, bottom: 0, left: 0},
-      width = 960,
-      height = 500,
-      color = nv.utils.defaultColor(), // function that returns colors
-      id = Math.floor(Math.random() * 10000), //Create semi-unique ID incase user doesn't select one
-      getX = function(d) { return d.x }, // accessor to get the x value from a data point
-      getY = function(d) { return d.y }, // accessor to get the y value from a data point
-      clipEdge = false, // if true, masks lines within x and y scale
-      interpolate = "linear"; // controls the line interpolation
+  var margin = {top: 0, right: 0, bottom: 0, left: 0}; // controls the line interpolation
 
+  var width = 960;
+  var height = 500;
 
-  var scatter = nv.models.scatter()
+  var // function that returns colors
+  color = nv.utils.defaultColor();
+
+  var //Create semi-unique ID incase user doesn't select one
+  id = Math.floor(Math.random() * 10000);
+
+  var // accessor to get the x value from a data point
+  getX = d => d.x;
+
+  var // accessor to get the y value from a data point
+  getY = d => d.y;
+
+  var // if true, masks lines within x and y scale
+  clipEdge = false;
+
+  var interpolate = "linear";
+
+  var //set to speed up calculation, needs to be unset if there is a cstom size accessor
+  scatter = nv.models.scatter()
                   .id(id)
                   .size(16) // default size
-                  .sizeDomain([16,256]), //set to speed up calculation, needs to be unset if there is a cstom size accessor
-      //x = scatter.xScale(),
-      //y = scatter.yScale(),
-      x, y,
-      x0, y0, timeoutID;
+                  .sizeDomain([16,256]);
+
+  var //x = scatter.xScale(),
+  //y = scatter.yScale(),
+  x;
+
+  var y;
+  var x0;
+  var y0;
+  var timeoutID;
 
 
   function chart(selection) {
     selection.each(function(data) {
-      var availableWidth = width - margin.left - margin.right,
-          availableHeight = height - margin.top - margin.bottom;
+      var availableWidth = width - margin.left - margin.right;
+      var availableHeight = height - margin.top - margin.bottom;
 
       //get the scales inscase scatter scale was set manually
       x = x || scatter.xScale();
@@ -74,7 +91,7 @@ nv.models.line = function() {
 
 
       var groups = wrap.select('.nv-groups').selectAll('.nv-group')
-          .data(function(d) { return d }, function(d) { return d.key });
+          .data(d => d, d => d.key);
       groups.enter().append('g')
           .style('stroke-opacity', 1e-6)
           .style('fill-opacity', 1e-6);
@@ -83,43 +100,42 @@ nv.models.line = function() {
           .style('fill-opacity', 1e-6)
           .remove();
       groups
-          .attr('class', function(d,i) { return 'nv-group nv-series-' + i })
-          .classed('hover', function(d) { return d.hover })
-          .style('fill', function(d,i){ return color(d, i) })
-          .style('stroke', function(d,i){ return color(d, i) })
+          .attr('class', (d, i) => 'nv-group nv-series-' + i)
+          .classed('hover', d => d.hover)
+          .style('fill', (d, i) => color(d, i))
+          .style('stroke', (d, i) => color(d, i))
       d3.transition(groups)
           .style('stroke-opacity', 1)
           .style('fill-opacity', .5)
 
 
       var paths = groups.selectAll('path')
-          .data(function(d, i) { return [d.values] });
+          .data((d, i) => [d.values]);
       paths.enter().append('path')
           .attr('class', 'nv-line')
           .attr('d', d3.svg.line()
             .interpolate(interpolate)
-            .x(function(d,i) { return x0(getX(d,i)) })
-            .y(function(d,i) { return y0(getY(d,i)) })
+            .x((d, i) => x0(getX(d,i)))
+            .y((d, i) => y0(getY(d,i)))
           );
       d3.transition(groups.exit().selectAll('path'))
           .attr('d', d3.svg.line()
             .interpolate(interpolate)
-            .x(function(d,i) { return x(getX(d,i)) })
-            .y(function(d,i) { return y(getY(d,i)) })
+            .x((d, i) => x(getX(d,i)))
+            .y((d, i) => y(getY(d,i)))
           )
           .remove(); // redundant? line is already being removed
       d3.transition(paths)
           .attr('d', d3.svg.line()
             .interpolate(interpolate)
-            .x(function(d,i) { return x(getX(d,i)) })
-            .y(function(d,i) { return y(getY(d,i)) })
+            .x((d, i) => x(getX(d,i)))
+            .y((d, i) => y(getY(d,i)))
           );
 
 
       //store old scales for use in transitions on update, to animate from old to new positions
       x0 = x.copy();
       y0 = y.copy();
-
     });
 
     return chart;

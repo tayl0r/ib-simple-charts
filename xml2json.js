@@ -7,14 +7,18 @@
 */
 function xml2json(xml, tab) {
    var X = {
-      toObj: function(xml) {
+      toObj(xml) {
          var o = {};
          if (xml.nodeType==1) {   // element node ..
             if (xml.attributes.length)   // element with attributes  ..
                for (var i=0; i<xml.attributes.length; i++)
                   o["@"+xml.attributes[i].nodeName] = (xml.attributes[i].nodeValue||"").toString();
-            if (xml.firstChild) { // element has child nodes ..
-               var textChild=0, cdataChild=0, hasElementChild=false;
+            if (xml.firstChild) {
+               // element has child nodes ..
+               var textChild=0;
+
+               var cdataChild=0;
+               var hasElementChild=false;
                for (var n=xml.firstChild; n; n=n.nextSibling) {
                   if (n.nodeType==1) hasElementChild = true;
                   else if (n.nodeType==3 && n.nodeValue.match(/[^ \f\n\r\t\v]/)) textChild++; // non-whitespace text
@@ -68,7 +72,7 @@ function xml2json(xml, tab) {
             alert("unhandled node type: " + xml.nodeType);
          return o;
       },
-      toJson: function(o, name, ind) {
+      toJson(o, name, ind) {
          var json = name ? ("\""+name+"\"") : "";
          if (o instanceof Array) {
             for (var i=0,n=o.length; i<n; i++)
@@ -89,12 +93,12 @@ function xml2json(xml, tab) {
             json += (name&&":") + o.toString();
          return json;
       },
-      innerXml: function(node) {
+      innerXml(node) {
          var s = ""
          if ("innerHTML" in node)
             s = node.innerHTML;
          else {
-            var asXml = function(n) {
+            var asXml = n => {
                var s = "";
                if (n.nodeType == 1) {
                   s += "<" + n.nodeName;
@@ -120,13 +124,13 @@ function xml2json(xml, tab) {
          }
          return s;
       },
-      escape: function(txt) {
+      escape(txt) {
          return txt.replace(/[\\]/g, "\\\\")
                    .replace(/[\"]/g, '\\"')
                    .replace(/[\n]/g, '\\n')
                    .replace(/[\r]/g, '\\r');
       },
-      removeWhite: function(e) {
+      removeWhite(e) {
          //console.log(e);
          e.normalize();
          for (var n = e.firstChild; n; ) {

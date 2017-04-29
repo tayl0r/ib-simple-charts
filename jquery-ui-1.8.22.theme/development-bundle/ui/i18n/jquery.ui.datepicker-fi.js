@@ -1,6 +1,6 @@
 /* Finnish initialisation for the jQuery UI date picker plugin. */
 /* Written by Harri Kilpiö (harrikilpio@gmail.com). */
-jQuery(function($){
+jQuery($ => {
 	$.datepicker.regional['fi'] = {
 		closeText: 'Sulje',
 		prevText: '&#xAB;Edellinen',

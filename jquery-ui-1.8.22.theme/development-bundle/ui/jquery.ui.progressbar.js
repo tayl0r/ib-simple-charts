@@ -11,7 +11,7 @@
  *   jquery.ui.core.js
  *   jquery.ui.widget.js
  */
-(function( $, undefined ) {
+((($, undefined) => {
 
 $.widget( "ui.progressbar", {
 	options: {
@@ -21,7 +21,7 @@ $.widget( "ui.progressbar", {
 
 	min: 0,
 
-	_create: function() {
+	_create() {
 		this.element
 			.addClass( "ui-progressbar ui-widget ui-widget-content ui-corner-all" )
 			.attr({
@@ -38,7 +38,7 @@ $.widget( "ui.progressbar", {
 		this._refreshValue();
 	},
 
-	destroy: function() {
+	destroy(...args) {
 		this.element
 			.removeClass( "ui-progressbar ui-widget ui-widget-content ui-corner-all" )
 			.removeAttr( "role" )
@@ -48,10 +48,10 @@ $.widget( "ui.progressbar", {
 
 		this.valueDiv.remove();
 
-		$.Widget.prototype.destroy.apply( this, arguments );
+		$.Widget.prototype.destroy.apply( this, args );
 	},
 
-	value: function( newValue ) {
+	value(newValue) {
 		if ( newValue === undefined ) {
 			return this._value();
 		}
@@ -60,7 +60,7 @@ $.widget( "ui.progressbar", {
 		return this;
 	},
 
-	_setOption: function( key, value ) {
+	_setOption(key, value) {
 		if ( key === "value" ) {
 			this.options.value = value;
 			this._refreshValue();
@@ -72,7 +72,7 @@ $.widget( "ui.progressbar", {
 		$.Widget.prototype._setOption.apply( this, arguments );
 	},
 
-	_value: function() {
+	_value() {
 		var val = this.options.value;
 		// normalize invalid value
 		if ( typeof val !== "number" ) {
@@ -81,11 +81,11 @@ $.widget( "ui.progressbar", {
 		return Math.min( this.options.max, Math.max( this.min, val ) );
 	},
 
-	_percentage: function() {
+	_percentage() {
 		return 100 * this._value() / this.options.max;
 	},
 
-	_refreshValue: function() {
+	_refreshValue() {
 		var value = this.value();
 		var percentage = this._percentage();
 
@@ -106,4 +106,4 @@ $.extend( $.ui.progressbar, {
 	version: "1.8.22"
 });
 
-})( jQuery );
+}))( jQuery );

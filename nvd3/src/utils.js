@@ -1,5 +1,5 @@
 
-nv.utils.windowSize = function() {
+nv.utils.windowSize = () => {
     // Sane defaults
     var size = {width: 640, height: 480};
 
@@ -29,10 +29,10 @@ nv.utils.windowSize = function() {
 
 // Easy way to bind multiple functions to window.onresize
 // TODO: give a way to remove a function after its bound, other than removing alkl of them
-nv.utils.windowResize = function(fun){
+nv.utils.windowResize = fun => {
   var oldresize = window.onresize;
 
-  window.onresize = function(e) {
+  window.onresize = e => {
     if (typeof oldresize == 'function') oldresize(e);
     fun(e);
   }
@@ -41,9 +41,9 @@ nv.utils.windowResize = function(fun){
 // Backwards compatible way to implement more d3-like coloring of graphs.
 // If passed an array, wrap it in a function which implements the old default
 // behaviour
-nv.utils.getColor = function(color){
+nv.utils.getColor = color => {
     if( Object.prototype.toString.call( color ) === '[object Array]' )
-        return function(d, i) { return d.color || color[i % color.length]; };
+        return (d, i) => d.color || color[i % color.length];
     else
         return color;
         //can't really help it if someone passes rubish as color
@@ -52,9 +52,9 @@ nv.utils.getColor = function(color){
 // Default color chooser uses the index of an object as before.
 //
 //
-nv.utils.defaultColor = function(){
+nv.utils.defaultColor = () => {
     var colors = d3.scale.category20().range();
-    return function(d, i) {return colors[i % colors.length]};
+    return (d, i) => colors[i % colors.length];
 }
 
 
@@ -62,7 +62,7 @@ nv.utils.defaultColor = function(){
 // From the PJAX example on d3js.org, while this is not really directly needed
 // it's a very cool method for doing pjax, I may expand upon it a little bit,
 // open to suggestions on anything that may be useful
-nv.utils.pjax = function(links, content) {
+nv.utils.pjax = (links, content) => {
   d3.selectAll(links).on("click", function() {
     history.pushState(this.href, this.textContent, this.href);
     load(this.href);
@@ -70,14 +70,14 @@ nv.utils.pjax = function(links, content) {
   });
 
   function load(href) {
-    d3.html(href, function(fragment) {
+    d3.html(href, fragment => {
       var target = d3.select(content).node();
       target.parentNode.replaceChild(d3.select(fragment).select(content).node(), target);
       nv.utils.pjax(links, content);
     });
   }
 
-  d3.select(window).on("popstate", function() {
+  d3.select(window).on("popstate", () => {
     if (d3.event.state) load(d3.event.state);
   });
 }

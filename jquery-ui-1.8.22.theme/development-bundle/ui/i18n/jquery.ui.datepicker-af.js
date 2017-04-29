@@ -1,6 +1,6 @@
 /* Afrikaans initialisation for the jQuery UI date picker plugin. */
 /* Written by Renier Pretorius. */
-jQuery(function($){
+jQuery($ => {
 	$.datepicker.regional['af'] = {
 		closeText: 'Selekteer',
 		prevText: 'Vorige',

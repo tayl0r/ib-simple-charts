@@ -1,19 +1,21 @@
 
 //TODO: Finish merging this chart into the NVD3 style!
-nv.models.indentedTree = function() {
+nv.models.indentedTree = () => {
   //Default Settings
-  var margin = {top: 0, right: 0, bottom: 0, left: 0}, //TODO: implement, maybe as margin on the containing div
-      width = 960,
-      height = 500,
-      color = nv.utils.defaultColor(),
-      id = Math.floor(Math.random() * 10000), 
-      header = true,
-      noResultsText = 'No Results found.'
-      childIndent = 20,
-      columns = [{key:'key', label: 'Name', type:'text'}], //TODO: consider functions like chart.addColumn, chart.removeColumn, instead of a block like this
-      tableClass = null,
-      iconOpen = 'images/grey-plus.png', //TODO: consider removing this and replacing with a '+' or '-' unless user defines images
-      iconClose = 'images/grey-minus.png';
+  var //TODO: implement, maybe as margin on the containing div
+  margin = {top: 0, right: 0, bottom: 0, left: 0};
+
+  var width = 960;
+  var height = 500;
+  var color = nv.utils.defaultColor();
+  var id = Math.floor(Math.random() * 10000);
+  var header = true;
+  var noResultsText = 'No Results found.';
+  childIndent = 20,
+  columns = [{key:'key', label: 'Name', type:'text'}], //TODO: consider functions like chart.addColumn, chart.removeColumn, instead of a block like this
+  tableClass = null,
+  iconOpen = 'images/grey-plus.png', //TODO: consider removing this and replacing with a '+' or '-' unless user defines images
+  iconClose = 'images/grey-minus.png';
 
 
   var dispatch = d3.dispatch('elementClick', 'elementDblclick', 'elementMouseover', 'elementMouseout');
@@ -21,17 +23,19 @@ nv.models.indentedTree = function() {
 
   function chart(selection) {
     selection.each(function(data) {
-      var availableWidth = width - margin.left - margin.right,  //TODO: decide if there is any use for these
-          availableHeight = height - margin.top - margin.bottom;
+      var //TODO: decide if there is any use for these
+      availableWidth = width - margin.left - margin.right;
+
+      var availableHeight = height - margin.top - margin.bottom;
 
 
-      chart.update = function() { selection.transition().call(chart) };
+      chart.update = () => { selection.transition().call(chart) };
 
-      var i = 0,
-          depth = 1;
+      var i = 0;
+      var depth = 1;
 
       var tree = d3.layout.tree()
-          .children(function(d) { return d.values })
+          .children(d => d.values)
           .size([height, childIndent]); //Not sure if this is needed now that the result is HTML
 
 
@@ -52,7 +56,7 @@ nv.models.indentedTree = function() {
 
         var theadRow1 = thead.append('tr');
 
-        columns.forEach(function(column) {
+        columns.forEach(column => {
           theadRow1
             .append('th')
               .attr('width', column.width ? column.width : '10%')
@@ -64,20 +68,20 @@ nv.models.indentedTree = function() {
 
 
       var tbody = table.selectAll('tbody')
-                    .data(function(d) {return d });
+                    .data(d => d);
       tbody.enter().append('tbody');
 
 
 
       //compute max generations
-      depth = d3.max(nodes, function(node) { return node.depth });
+      depth = d3.max(nodes, node => node.depth);
       tree.size([height, depth * childIndent]); //TODO: see if this is necessary at all
 
 
       // Update the nodes…
       var node = tbody.selectAll('tr')
-          .data(function(d) { return d }, function(d) { return d.id || (d.id == ++i)});
-          //.style('display', 'table-row'); //TODO: see if this does anything
+          .data(d => d, d => d.id || (d.id == ++i));
+      //.style('display', 'table-row'); //TODO: see if this does anything
 
       node.exit().remove();
 
@@ -89,10 +93,10 @@ nv.models.indentedTree = function() {
       var nodeEnter = node.enter().append('tr');
 
 
-      columns.forEach(function(column, index) {
+      columns.forEach((column, index) => {
 
         var nodeName = nodeEnter.append('td')
-            .style('padding-left', function(d) { return (index ? 0 : d.depth * childIndent + 12 + (icon(d) ? 0 : 16)) + 'px' }, 'important') //TODO: check why I did the ternary here
+            .style('padding-left', d => (index ? 0 : d.depth * childIndent + 12 + (icon(d) ? 0 : 16)) + 'px', 'important') //TODO: check why I did the ternary here
             .style('text-align', column.type == 'numeric' ? 'right' : 'left');
 
 
@@ -104,24 +108,22 @@ nv.models.indentedTree = function() {
               .style('width', '14px')
               .style('height', '14px')
               .style('padding', '0 1px')
-              .style('display', function(d) { return icon(d) ? 'inline-block' : 'none'; })
+              .style('display', d => icon(d) ? 'inline-block' : 'none')
               .on('click', click);
         }
 
 
         nodeName.append('span')
             .attr('class', d3.functor(column.classes) )
-            .text(function(d) { return column.format ? column.format(d) :
-                                        (d[column.key] || '-') });
+            .text(d => column.format ? column.format(d) :
+                                        (d[column.key] || '-'));
 
         if  (column.showCount)
           nodeName.append('span')
               .attr('class', 'nv-childrenCount')
-              .text(function(d) {
-                return ((d.values && d.values.length) || (d._values && d._values.length)) ?
-                    '(' + ((d.values && d.values.length) || (d._values && d._values.length)) + ')'
-                  : ''
-              });
+              .text(d => ((d.values && d.values.length) || (d._values && d._values.length)) ?
+              '(' + ((d.values && d.values.length) || (d._values && d._values.length)) + ')'
+            : '');
 
 
         if (column.click)
@@ -171,7 +173,7 @@ nv.models.indentedTree = function() {
         if(d3.event.shiftKey && !unshift) {
           //If you shift-click, it'll toggle fold all the children, instead of itself
           d3.event.shiftKey = false;
-          d.values && d.values.forEach(function(node){
+          d.values && d.values.forEach(node => {
             if (node.values || node._values) {
               click(node, 0, true);
             }
@@ -207,7 +209,6 @@ nv.models.indentedTree = function() {
 
         return (values && values.length);
       }
-
     });
 
     return chart;

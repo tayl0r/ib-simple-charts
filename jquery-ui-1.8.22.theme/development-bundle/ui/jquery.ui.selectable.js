@@ -12,7 +12,7 @@
  *	jquery.ui.mouse.js
  *	jquery.ui.widget.js
  */
-(function( $, undefined ) {
+((($, undefined) => {
 
 $.widget("ui.selectable", $.ui.mouse, {
 	options: {
@@ -22,7 +22,7 @@ $.widget("ui.selectable", $.ui.mouse, {
 		filter: '*',
 		tolerance: 'touch'
 	},
-	_create: function() {
+	_create() {
 		var self = this;
 
 		this.element.addClass("ui-selectable");
@@ -31,7 +31,7 @@ $.widget("ui.selectable", $.ui.mouse, {
 
 		// cache selectee children based on filter
 		var selectees;
-		this.refresh = function() {
+		this.refresh = () => {
 			selectees = $(self.options.filter, self.element[0]);
 			selectees.addClass("ui-selectee");
 			selectees.each(function() {
@@ -60,7 +60,7 @@ $.widget("ui.selectable", $.ui.mouse, {
 		this.helper = $("<div class='ui-selectable-helper'></div>");
 	},
 
-	destroy: function() {
+	destroy() {
 		this.selectees
 			.removeClass("ui-selectee")
 			.removeData("selectable-item");
@@ -73,7 +73,7 @@ $.widget("ui.selectable", $.ui.mouse, {
 		return this;
 	},
 
-	_mouseStart: function(event) {
+	_mouseStart(event) {
 		var self = this;
 
 		this.opos = [event.pageX, event.pageY];
@@ -141,21 +141,24 @@ $.widget("ui.selectable", $.ui.mouse, {
 
 	},
 
-	_mouseDrag: function(event) {
-		var self = this;
-		this.dragged = true;
+	_mouseDrag(event) {
+        var self = this;
+        this.dragged = true;
 
-		if (this.options.disabled)
+        if (this.options.disabled)
 			return;
 
-		var options = this.options;
+        var options = this.options;
 
-		var x1 = this.opos[0], y1 = this.opos[1], x2 = event.pageX, y2 = event.pageY;
-		if (x1 > x2) { var tmp = x2; x2 = x1; x1 = tmp; }
-		if (y1 > y2) { var tmp = y2; y2 = y1; y1 = tmp; }
-		this.helper.css({left: x1, top: y1, width: x2-x1, height: y2-y1});
+        var x1 = this.opos[0];
+        var y1 = this.opos[1];
+        var x2 = event.pageX;
+        var y2 = event.pageY;
+        if (x1 > x2) { var tmp = x2; x2 = x1; x1 = tmp; }
+        if (y1 > y2) { var tmp = y2; y2 = y1; y1 = tmp; }
+        this.helper.css({left: x1, top: y1, width: x2-x1, height: y2-y1});
 
-		this.selectees.each(function() {
+        this.selectees.each(function() {
 			var selectee = $.data(this, "selectable-item");
 			//prevent helper from being selected if appendTo: selectable
 			if (!selectee || selectee.element == self.element[0])
@@ -222,10 +225,10 @@ $.widget("ui.selectable", $.ui.mouse, {
 			}
 		});
 
-		return false;
-	},
+        return false;
+    },
 
-	_mouseStop: function(event) {
+	_mouseStop(event) {
 		var self = this;
 
 		this.dragged = false;
@@ -264,4 +267,4 @@ $.extend($.ui.selectable, {
 	version: "1.8.22"
 });
 
-})(jQuery);
+}))(jQuery);

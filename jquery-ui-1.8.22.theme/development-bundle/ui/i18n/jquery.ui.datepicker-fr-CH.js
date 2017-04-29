@@ -1,6 +1,6 @@
 /* Swiss-French initialisation for the jQuery UI date picker plugin. */
 /* Written Martin Voelkle (martin.voelkle@e-tc.ch). */
-jQuery(function($){
+jQuery($ => {
 	$.datepicker.regional['fr-CH'] = {
 		closeText: 'Fermer',
 		prevText: '&#x3c;Préc',

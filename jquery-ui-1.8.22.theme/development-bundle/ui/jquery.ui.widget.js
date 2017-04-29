@@ -7,12 +7,12 @@
  *
  * http://docs.jquery.com/UI/Widget
  */
-(function( $, undefined ) {
+((($, undefined) => {
 
 // jQuery 1.4+
 if ( $.cleanData ) {
 	var _cleanData = $.cleanData;
-	$.cleanData = function( elems ) {
+	$.cleanData = elems => {
 		for ( var i = 0, elem; (elem = elems[i]) != null; i++ ) {
 			try {
 				$( elem ).triggerHandler( "remove" );
@@ -40,86 +40,86 @@ if ( $.cleanData ) {
 	};
 }
 
-$.widget = function( name, base, prototype ) {
-	var namespace = name.split( "." )[ 0 ],
-		fullName;
-	name = name.split( "." )[ 1 ];
-	fullName = namespace + "-" + name;
+$.widget = (name, base, prototype) => {
+    var namespace = name.split( "." )[ 0 ];
+    var fullName;
+    name = name.split( "." )[ 1 ];
+    fullName = namespace + "-" + name;
 
-	if ( !prototype ) {
+    if ( !prototype ) {
 		prototype = base;
 		base = $.Widget;
 	}
 
-	// create selector for plugin
-	$.expr[ ":" ][ fullName ] = function( elem ) {
-		return !!$.data( elem, name );
-	};
+    // create selector for plugin
+    $.expr[ ":" ][ fullName ] = elem => !!$.data( elem, name );
 
-	$[ namespace ] = $[ namespace ] || {};
-	$[ namespace ][ name ] = function( options, element ) {
+    $[ namespace ] = $[ namespace ] || {};
+    $[ namespace ][ name ] = function( options, element ) {
 		// allow instantiation without initializing for simple inheritance
 		if ( arguments.length ) {
 			this._createWidget( options, element );
 		}
 	};
 
-	var basePrototype = new base();
-	// we need to make the options hash a property directly on the new instance
-	// otherwise we'll modify the options hash on the prototype that we're
-	// inheriting from
-//	$.each( basePrototype, function( key, val ) {
-//		if ( $.isPlainObject(val) ) {
-//			basePrototype[ key ] = $.extend( {}, val );
-//		}
-//	});
-	basePrototype.options = $.extend( true, {}, basePrototype.options );
-	$[ namespace ][ name ].prototype = $.extend( true, basePrototype, {
-		namespace: namespace,
+    var basePrototype = new base();
+    // we need to make the options hash a property directly on the new instance
+    // otherwise we'll modify the options hash on the prototype that we're
+    // inheriting from
+    //	$.each( basePrototype, function( key, val ) {
+    //		if ( $.isPlainObject(val) ) {
+    //			basePrototype[ key ] = $.extend( {}, val );
+    //		}
+    //	});
+    basePrototype.options = $.extend( true, {}, basePrototype.options );
+    $[ namespace ][ name ].prototype = $.extend( true, basePrototype, {
+		namespace,
 		widgetName: name,
 		widgetEventPrefix: $[ namespace ][ name ].prototype.widgetEventPrefix || name,
 		widgetBaseClass: fullName
 	}, prototype );
 
-	$.widget.bridge( name, $[ namespace ][ name ] );
+    $.widget.bridge( name, $[ namespace ][ name ] );
 };
 
-$.widget.bridge = function( name, object ) {
+$.widget.bridge = (name, object) => {
 	$.fn[ name ] = function( options ) {
-		var isMethodCall = typeof options === "string",
-			args = Array.prototype.slice.call( arguments, 1 ),
-			returnValue = this;
+        var isMethodCall = typeof options === "string";
+        var args = Array.prototype.slice.call( arguments, 1 );
+        var returnValue = this;
 
-		// allow multiple hashes to be passed on init
-		options = !isMethodCall && args.length ?
+        // allow multiple hashes to be passed on init
+        options = !isMethodCall && args.length ?
 			$.extend.apply( null, [ true, options ].concat(args) ) :
 			options;
 
-		// prevent calls to internal methods
-		if ( isMethodCall && options.charAt( 0 ) === "_" ) {
+        // prevent calls to internal methods
+        if ( isMethodCall && options.charAt( 0 ) === "_" ) {
 			return returnValue;
 		}
 
-		if ( isMethodCall ) {
+        if ( isMethodCall ) {
 			this.each(function() {
-				var instance = $.data( this, name ),
-					methodValue = instance && $.isFunction( instance[options] ) ?
-						instance[ options ].apply( instance, args ) :
-						instance;
-				// TODO: add this back in 1.9 and use $.error() (see #5972)
-//				if ( !instance ) {
-//					throw "cannot call methods on " + name + " prior to initialization; " +
-//						"attempted to call method '" + options + "'";
-//				}
-//				if ( !$.isFunction( instance[options] ) ) {
-//					throw "no such method '" + options + "' for " + name + " widget instance";
-//				}
-//				var methodValue = instance[ options ].apply( instance, args );
-				if ( methodValue !== instance && methodValue !== undefined ) {
+                var instance = $.data( this, name );
+
+                var methodValue = instance && $.isFunction( instance[options] ) ?
+                    instance[ options ](...args) :
+                    instance;
+
+                // TODO: add this back in 1.9 and use $.error() (see #5972)
+                //				if ( !instance ) {
+                //					throw "cannot call methods on " + name + " prior to initialization; " +
+                //						"attempted to call method '" + options + "'";
+                //				}
+                //				if ( !$.isFunction( instance[options] ) ) {
+                //					throw "no such method '" + options + "' for " + name + " widget instance";
+                //				}
+                //				var methodValue = instance[ options ].apply( instance, args );
+                if ( methodValue !== instance && methodValue !== undefined ) {
 					returnValue = methodValue;
 					return false;
 				}
-			});
+            });
 		} else {
 			this.each(function() {
 				var instance = $.data( this, name );
@@ -131,8 +131,8 @@ $.widget.bridge = function( name, object ) {
 			});
 		}
 
-		return returnValue;
-	};
+        return returnValue;
+    };
 };
 
 $.Widget = function( options, element ) {
@@ -148,7 +148,7 @@ $.Widget.prototype = {
 	options: {
 		disabled: false
 	},
-	_createWidget: function( options, element ) {
+	_createWidget(options, element) {
 		// $.widget.bridge stores the plugin instance, but we do it anyway
 		// so that it's stored even before the _create function runs
 		$.data( element, this.widgetName, this );
@@ -159,7 +159,7 @@ $.Widget.prototype = {
 			options );
 
 		var self = this;
-		this.element.bind( "remove." + this.widgetName, function() {
+		this.element.bind( "remove." + this.widgetName, () => {
 			self.destroy();
 		});
 
@@ -167,13 +167,13 @@ $.Widget.prototype = {
 		this._trigger( "create" );
 		this._init();
 	},
-	_getCreateOptions: function() {
+	_getCreateOptions() {
 		return $.metadata && $.metadata.get( this.element[0] )[ this.widgetName ];
 	},
-	_create: function() {},
-	_init: function() {},
+	_create() {},
+	_init() {},
 
-	destroy: function() {
+	destroy() {
 		this.element
 			.unbind( "." + this.widgetName )
 			.removeData( this.widgetName );
@@ -185,11 +185,11 @@ $.Widget.prototype = {
 				"ui-state-disabled" );
 	},
 
-	widget: function() {
+	widget() {
 		return this.element;
 	},
 
-	option: function( key, value ) {
+	option(key, value) {
 		var options = key;
 
 		if ( arguments.length === 0 ) {
@@ -209,15 +209,15 @@ $.Widget.prototype = {
 
 		return this;
 	},
-	_setOptions: function( options ) {
+	_setOptions(options) {
 		var self = this;
-		$.each( options, function( key, value ) {
+		$.each( options, (key, value) => {
 			self._setOption( key, value );
 		});
 
 		return this;
 	},
-	_setOption: function( key, value ) {
+	_setOption(key, value) {
 		this.options[ key ] = value;
 
 		if ( key === "disabled" ) {
@@ -231,29 +231,30 @@ $.Widget.prototype = {
 		return this;
 	},
 
-	enable: function() {
+	enable() {
 		return this._setOption( "disabled", false );
 	},
-	disable: function() {
+	disable() {
 		return this._setOption( "disabled", true );
 	},
 
-	_trigger: function( type, event, data ) {
-		var prop, orig,
-			callback = this.options[ type ];
+	_trigger(type, event, data) {
+        var prop;
+        var orig;
+        var callback = this.options[ type ];
 
-		data = data || {};
-		event = $.Event( event );
-		event.type = ( type === this.widgetEventPrefix ?
+        data = data || {};
+        event = $.Event( event );
+        event.type = ( type === this.widgetEventPrefix ?
 			type :
 			this.widgetEventPrefix + type ).toLowerCase();
-		// the original event may come from any element
-		// so we need to reset the target on the new event
-		event.target = this.element[ 0 ];
+        // the original event may come from any element
+        // so we need to reset the target on the new event
+        event.target = this.element[ 0 ];
 
-		// copy original event properties over to the new event
-		orig = event.originalEvent;
-		if ( orig ) {
+        // copy original event properties over to the new event
+        orig = event.originalEvent;
+        if ( orig ) {
 			for ( prop in orig ) {
 				if ( !( prop in event ) ) {
 					event[ prop ] = orig[ prop ];
@@ -261,12 +262,12 @@ $.Widget.prototype = {
 			}
 		}
 
-		this.element.trigger( event, data );
+        this.element.trigger( event, data );
 
-		return !( $.isFunction(callback) &&
+        return !( $.isFunction(callback) &&
 			callback.call( this.element[0], event, data ) === false ||
 			event.isDefaultPrevented() );
-	}
+    }
 };
 
-})( jQuery );
+}))( jQuery );

@@ -1,6 +1,6 @@
 /* Malayalam (UTF-8) initialisation for the jQuery UI date picker plugin. */
 /* Written by Saji Nediyanchath (saji89@gmail.com). */
-jQuery(function($){
+jQuery($ => {
 	$.datepicker.regional['ml'] = {
 		closeText: 'ശരി',
 		prevText: 'മുന്നത്തെ',  

@@ -1,51 +1,52 @@
 
-nv.models.scatterFisheyeChart = function() {
-  var margin = {top: 30, right: 20, bottom: 50, left: 60},
-      width = null,
-      height = null,
-      color = nv.utils.defaultColor(),
-      showDistX = false,
-      showDistY = false,
-      showLegend = true,
-      showControls = true,
-      fisheye = 0,
-      tooltips = true,
-      tooltipX = function(key, x, y) { return '<strong>' + x + '</strong>' },
-      tooltipY = function(key, x, y) { return '<strong>' + y + '</strong>' },
-      tooltip = function(key, x, y, e, graph) { 
-        return '<h3>' + key + '</h3>' +
-               '<p>' +  y + ' at ' + x + '</p>'
-      },
-      noData = "No Data Available."
-      ;
+nv.models.scatterFisheyeChart = () => {
+  var margin = {top: 30, right: 20, bottom: 50, left: 60};
+  var width = null;
+  var height = null;
+  var color = nv.utils.defaultColor();
+  var showDistX = false;
+  var showDistY = false;
+  var showLegend = true;
+  var showControls = true;
+  var fisheye = 0;
+  var tooltips = true;
+  var tooltipX = (key, x, y) => '<strong>' + x + '</strong>';
+  var tooltipY = (key, x, y) => '<strong>' + y + '</strong>';
 
-  var x = d3.fisheye.scale(d3.scale.linear).distortion(0),
-      y = d3.fisheye.scale(d3.scale.linear).distortion(0);
+  var tooltip = (key, x, y, e, graph) => '<h3>' + key + '</h3>' +
+         '<p>' +  y + ' at ' + x + '</p>';
 
-  var scatter = nv.models.scatter().xScale(x).yScale(y),
-      //x = scatter.xScale(),
-      //y = scatter.yScale(),
-      xAxis = nv.models.axis().orient('bottom').scale(x).tickPadding(10),
-      yAxis = nv.models.axis().orient('left').scale(y).tickPadding(10),
-      legend = nv.models.legend().height(30),
-      controls = nv.models.legend().height(30),
-      dispatch = d3.dispatch('tooltipShow', 'tooltipHide'),
-      x0, y0; //TODO: abstract distribution component and have old scales stored there
+  var noData = "No Data Available.";
+  var x = d3.fisheye.scale(d3.scale.linear).distortion(0);
+  var y = d3.fisheye.scale(d3.scale.linear).distortion(0);
+  var scatter = nv.models.scatter().xScale(x).yScale(y); //TODO: abstract distribution component and have old scales stored there
 
-  var showTooltip = function(e, offsetElement) {
+  var //x = scatter.xScale(),
+  //y = scatter.yScale(),
+  xAxis = nv.models.axis().orient('bottom').scale(x).tickPadding(10);
+
+  var yAxis = nv.models.axis().orient('left').scale(y).tickPadding(10);
+  var legend = nv.models.legend().height(30);
+  var controls = nv.models.legend().height(30);
+  var dispatch = d3.dispatch('tooltipShow', 'tooltipHide');
+  var x0;
+  var y0;
+
+  var showTooltip = (e, offsetElement) => {
     //TODO: make tooltip style an option between single or dual on axes (maybe on all charts with axes?)
 
     //var left = e.pos[0] + ( offsetElement.offsetLeft || 0 ),
-        //top = e.pos[1] + ( offsetElement.offsetTop || 0),
-    var leftX = e.pos[0] + ( offsetElement.offsetLeft || 0 ),
-        topX = y.range()[0] + margin.top + ( offsetElement.offsetTop || 0),
-        leftY = x.range()[0] + margin.left + ( offsetElement.offsetLeft || 0 ),
-        topY = e.pos[1] + ( offsetElement.offsetTop || 0),
-        xVal = xAxis.tickFormat()(scatter.x()(e.point, e.pointIndex)),
-        yVal = yAxis.tickFormat()(scatter.y()(e.point, e.pointIndex)),
-        contentX = tooltipX(e.series.key, xVal, yVal, e, chart),
-        contentY = tooltipY(e.series.key, xVal, yVal, e, chart);
-        //content = tooltip(e.series.key, xVal, yVal, e, chart);
+    //top = e.pos[1] + ( offsetElement.offsetTop || 0),
+    var leftX = e.pos[0] + ( offsetElement.offsetLeft || 0 );
+    //content = tooltip(e.series.key, xVal, yVal, e, chart);
+
+    var topX = y.range()[0] + margin.top + ( offsetElement.offsetTop || 0);
+    var leftY = x.range()[0] + margin.left + ( offsetElement.offsetLeft || 0 );
+    var topY = e.pos[1] + ( offsetElement.offsetTop || 0);
+    var xVal = xAxis.tickFormat()(scatter.x()(e.point, e.pointIndex));
+    var yVal = yAxis.tickFormat()(scatter.y()(e.point, e.pointIndex));
+    var contentX = tooltipX(e.series.key, xVal, yVal, e, chart);
+    var contentY = tooltipY(e.series.key, xVal, yVal, e, chart);
 
     nv.tooltip.show([leftX, topX], contentX, 'n', 1);
     nv.tooltip.show([leftY, topY], contentY, 'e', 1);
@@ -58,23 +59,24 @@ nv.models.scatterFisheyeChart = function() {
 
   function chart(selection) {
     selection.each(function(data) {
-      var container = d3.select(this),
-          that = this;
+      var container = d3.select(this);
+      var that = this;
 
       //TODO: decide if this makes sense to add into all the models for ease of updating (updating without needing the selection)
-      chart.update = function() { selection.transition().call(chart) };
+      chart.update = () => { selection.transition().call(chart) };
 
 
       var availableWidth = (width  || parseInt(container.style('width')) || 960)
-                             - margin.left - margin.right,
-          availableHeight = (height || parseInt(container.style('height')) || 400)
-                             - margin.top - margin.bottom;
+                             - margin.left - margin.right;
+
+      var availableHeight = (height || parseInt(container.style('height')) || 400)
+                         - margin.top - margin.bottom;
 
 
       //------------------------------------------------------------
       // Display No Data message if there's nothing to show.
 
-      if (!data || !data.length || !data.filter(function(d) { return d.values.length }).length) {
+      if (!data || !data.length || !data.filter(d => d.values.length).length) {
         container.append('text')
           .attr('class', 'nvd3 nv-noData')
           .attr('x', availableWidth / 2)
@@ -135,9 +137,7 @@ nv.models.scatterFisheyeChart = function() {
       scatter
         .width(availableWidth)
         .height(availableHeight)
-        .color(data.map(function(d,i) {
-          return d.color || color(d, i);
-        }).filter(function(d,i) { return !data[i].disabled }))
+        .color(data.map((d, i) => d.color || color(d, i)).filter((d, i) => !data[i].disabled))
 
 
       if (showControls) {
@@ -153,7 +153,7 @@ nv.models.scatterFisheyeChart = function() {
 
 
       var scatterWrap = wrap.select('.nv-scatterWrap')
-          .datum(data.filter(function(d) { return !d.disabled }));
+          .datum(data.filter(d => !d.disabled));
       d3.transition(scatterWrap).call(scatter);
 
 
@@ -180,62 +180,62 @@ nv.models.scatterFisheyeChart = function() {
       //TODO abstract Distribution into its own component
       if ( showDistX || showDistY) {
         var distWrap = scatterWrap.selectAll('g.nv-distribution')
-            .data(function(d) { return d }, function(d) { return d.key });
+            .data(d => d, d => d.key);
 
-        distWrap.enter().append('g').attr('class', function(d,i) { return 'nv-distribution nv-series-' + i })
+        distWrap.enter().append('g').attr('class', (d, i) => 'nv-distribution nv-series-' + i)
 
-        distWrap.style('stroke', function(d,i) { return color.filter(function(d,i) { return data[i] && !data[i].disabled })[i % color.length] })
+        distWrap.style('stroke', (d, i) => color.filter((d, i) => data[i] && !data[i].disabled)[i % color.length])
       }
 
       if (showDistX) {
         var distX = distWrap.selectAll('line.nv-distX')
-              .data(function(d) { return d.values })
+              .data(d => d.values)
         distX.enter().append('line')
-            .attr('x1', function(d,i) { return x0(scatter.x()(d,i)) })
-            .attr('x2', function(d,i) { return x0(scatter.x()(d,i)) })
+            .attr('x1', (d, i) => x0(scatter.x()(d,i)))
+            .attr('x2', (d, i) => x0(scatter.x()(d,i)))
         //d3.transition(distX.exit())
         d3.transition(distWrap.exit().selectAll('line.nv-distX'))
-            .attr('x1', function(d,i) { return x(scatter.x()(d,i)) })
-            .attr('x2', function(d,i) { return x(scatter.x()(d,i)) })
+            .attr('x1', (d, i) => x(scatter.x()(d,i)))
+            .attr('x2', (d, i) => x(scatter.x()(d,i)))
             .remove();
         distX
-            .attr('class', function(d,i) { return 'nv-distX nv-distX-' + i })
+            .attr('class', (d, i) => 'nv-distX nv-distX-' + i)
             .attr('y1', y.range()[0])
             .attr('y2', y.range()[0] + 8);
         d3.transition(distX)
-            .attr('x1', function(d,i) { return x(scatter.x()(d,i)) })
-            .attr('x2', function(d,i) { return x(scatter.x()(d,i)) })
+            .attr('x1', (d, i) => x(scatter.x()(d,i)))
+            .attr('x2', (d, i) => x(scatter.x()(d,i)))
       }
 
 
       if (showDistY) {
         var distY = distWrap.selectAll('line.nv-distY')
-            .data(function(d) { return d.values })
+            .data(d => d.values)
         distY.enter().append('line')
-            .attr('y1', function(d,i) { return y0(scatter.y()(d,i)) })
-            .attr('y2', function(d,i) { return y0(scatter.y()(d,i)) });
+            .attr('y1', (d, i) => y0(scatter.y()(d,i)))
+            .attr('y2', (d, i) => y0(scatter.y()(d,i)));
         //d3.transition(distY.exit())
         d3.transition(distWrap.exit().selectAll('line.nv-distY'))
-            .attr('y1', function(d,i) { return y(scatter.y()(d,i)) })
-            .attr('y2', function(d,i) { return y(scatter.y()(d,i)) })
+            .attr('y1', (d, i) => y(scatter.y()(d,i)))
+            .attr('y2', (d, i) => y(scatter.y()(d,i)))
             .remove();
         distY
-            .attr('class', function(d,i) { return 'nv-distY nv-distY-' + i })
+            .attr('class', (d, i) => 'nv-distY nv-distY-' + i)
             .attr('x1', x.range()[0])
             .attr('x2', x.range()[0] - 8)
         d3.transition(distY)
-            .attr('y1', function(d,i) { return y(scatter.y()(d,i)) })
-            .attr('y2', function(d,i) { return y(scatter.y()(d,i)) });
+            .attr('y1', (d, i) => y(scatter.y()(d,i)))
+            .attr('y2', (d, i) => y(scatter.y()(d,i)));
       }
 
 
 
 
-      legend.dispatch.on('legendClick', function(d,i, that) {
+      legend.dispatch.on('legendClick', (d, i, that) => {
         d.disabled = !d.disabled;
 
-        if (!data.filter(function(d) { return !d.disabled }).length) {
-          data.map(function(d) {
+        if (!data.filter(d => !d.disabled).length) {
+          data.map(d => {
             d.disabled = false;
             wrap.selectAll('.nv-series').classed('disabled', false);
             return d;
@@ -245,7 +245,7 @@ nv.models.scatterFisheyeChart = function() {
         selection.transition().call(chart)
       });
 
-      controls.dispatch.on('legendClick', function(d,i) { 
+      controls.dispatch.on('legendClick', (d, i) => { 
         d.disabled = !d.disabled;
 
         fisheye = d.disabled ? 0 : 2.5;
@@ -278,7 +278,7 @@ nv.models.scatterFisheyeChart = function() {
       */
 
 
-      scatter.dispatch.on('elementMouseover.tooltip', function(e) {
+      scatter.dispatch.on('elementMouseover.tooltip', e => {
         //scatterWrap.select('.series-' + e.seriesIndex + ' .distX-' + e.pointIndex)
         d3.select('.nv-chart-' + scatter.id() + ' .nv-series-' + e.seriesIndex + ' .nv-distX-' + e.pointIndex)
             .attr('y1', e.pos[1]);
@@ -290,11 +290,11 @@ nv.models.scatterFisheyeChart = function() {
         dispatch.tooltipShow(e);
       });
       //if (tooltips) dispatch.on('tooltipShow', function(e) { showTooltip(e, container[0][0].parentNode) } ); // TODO: maybe merge with above?
-      dispatch.on('tooltipShow', function(e) {
+      dispatch.on('tooltipShow', e => {
         if (tooltips) showTooltip(e, that.parentNode);
       });
 
-      scatter.dispatch.on('elementMouseout.tooltip', function(e) {
+      scatter.dispatch.on('elementMouseout.tooltip', e => {
         dispatch.tooltipHide(e);
 
         //scatterWrap.select('.series-' + e.seriesIndex + ' .distX-' + e.pointIndex)
@@ -325,7 +325,6 @@ nv.models.scatterFisheyeChart = function() {
       //store old scales for use in transitions on update, to animate from old to new positions, and sizes
       x0 = x.copy();
       y0 = y.copy();
-
     });
 
     return chart;

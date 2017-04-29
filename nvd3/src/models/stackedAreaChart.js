@@ -1,38 +1,45 @@
 
-nv.models.stackedAreaChart = function() {
-
+nv.models.stackedAreaChart = () => {
   //============================================================
   // Public Variables with Default Settings
   //------------------------------------------------------------
 
-  var margin = {top: 30, right: 25, bottom: 50, left: 60},
-      width = null,
-      height = null,
-      color = nv.utils.defaultColor(), // a function that takes in d, i and
-      //returns color
-      showControls = true,
-      showLegend = true,
-      tooltips = true,
-      tooltip = function(key, x, y, e, graph) {
-        return '<h3>' + key + '</h3>' +
-               '<p>' +  y + ' on ' + x + '</p>'
-      },
-      x, y, //can be accessed via chart.stacked.[x/y]Scale()
-      noData = "No Data Available."
-      ;
+  var margin = {top: 30, right: 25, bottom: 50, left: 60};
 
+  var width = null;
+  var height = null;
+
+  var // a function that takes in d, i and
+  color = nv.utils.defaultColor();
+
+  var //returns color
+  showControls = true;
+
+  var showLegend = true;
+  var tooltips = true;
+
+  var tooltip = (key, x, y, e, graph) => '<h3>' + key + '</h3>' +
+         '<p>' +  y + ' on ' + x + '</p>';
+
+  var x;
+
+  var //can be accessed via chart.stacked.[x/y]Scale()
+  y;
+
+  var noData = "No Data Available.";
 
   //============================================================
   // Private Variables
   //------------------------------------------------------------
 
-  var stacked = nv.models.stackedArea(),
-      xAxis = nv.models.axis().orient('bottom').tickPadding(5),
-      yAxis = nv.models.axis().orient('left'),
-      yAxisTickFormat = d3.format(",.2f"),
-      legend = nv.models.legend().height(30),
-      controls = nv.models.legend().height(30),
-      dispatch = d3.dispatch('tooltipShow', 'tooltipHide');
+  var stacked = nv.models.stackedArea();
+
+  var xAxis = nv.models.axis().orient('bottom').tickPadding(5);
+  var yAxis = nv.models.axis().orient('left');
+  var yAxisTickFormat = d3.format(",.2f");
+  var legend = nv.models.legend().height(30);
+  var controls = nv.models.legend().height(30);
+  var dispatch = d3.dispatch('tooltipShow', 'tooltipHide');
 
   //TODO: let user select default
   var controlsData = [
@@ -41,12 +48,12 @@ nv.models.stackedAreaChart = function() {
     { key: 'Expanded', disabled: true }
   ];
 
-  var showTooltip = function(e, offsetElement) {
-    var left = e.pos[0] + ( offsetElement.offsetLeft || 0 ),
-        top = e.pos[1] + ( offsetElement.offsetTop || 0),
-        x = xAxis.tickFormat()(stacked.x()(e.point, e.pointIndex)),
-        y = yAxis.tickFormat()(stacked.y()(e.point, e.pointIndex)),
-        content = tooltip(e.series.key, x, y, e, chart);
+  var showTooltip = (e, offsetElement) => {
+    var left = e.pos[0] + ( offsetElement.offsetLeft || 0 );
+    var top = e.pos[1] + ( offsetElement.offsetTop || 0);
+    var x = xAxis.tickFormat()(stacked.x()(e.point, e.pointIndex));
+    var y = yAxis.tickFormat()(stacked.y()(e.point, e.pointIndex));
+    var content = tooltip(e.series.key, x, y, e, chart);
 
     nv.tooltip.show([left, top], content, e.value < 0 ? 'n' : 's');
   };
@@ -54,19 +61,20 @@ nv.models.stackedAreaChart = function() {
 
   function chart(selection) {
     selection.each(function(data) {
-      var container = d3.select(this),
-          that = this;
+      var container = d3.select(this);
+      var that = this;
 
       var availableWidth = (width  || parseInt(container.style('width')) || 960)
-                             - margin.left - margin.right,
-          availableHeight = (height || parseInt(container.style('height')) || 400)
-                             - margin.top - margin.bottom;
+                             - margin.left - margin.right;
+
+      var availableHeight = (height || parseInt(container.style('height')) || 400)
+                         - margin.top - margin.bottom;
 
 
       //------------------------------------------------------------
       // Display No Data message if there's nothing to show.
 
-      if (!data || !data.length || !data.filter(function(d) { return d.values.length }).length) {
+      if (!data || !data.length || !data.filter(d => d.values.length).length) {
         container.append('text')
           .attr('class', 'nvd3 nv-noData')
           .attr('x', availableWidth / 2)
@@ -165,14 +173,14 @@ nv.models.stackedAreaChart = function() {
       // Event Handling/Dispatching (in chart's scope)
       //------------------------------------------------------------
 
-      stacked.dispatch.on('areaClick.toggle', function(e) {
-        if (data.filter(function(d) { return !d.disabled }).length === 1)
-          data = data.map(function(d) {
+      stacked.dispatch.on('areaClick.toggle', e => {
+        if (data.filter(d => !d.disabled).length === 1)
+          data = data.map(d => {
             d.disabled = false;
             return d
           });
         else
-          data = data.map(function(d,i) {
+          data = data.map((d, i) => {
             d.disabled = (i != e.seriesIndex);
             return d
           });
@@ -180,11 +188,11 @@ nv.models.stackedAreaChart = function() {
         selection.transition().call(chart);
       });
 
-      legend.dispatch.on('legendClick', function(d,i) {
+      legend.dispatch.on('legendClick', (d, i) => {
         d.disabled = !d.disabled;
 
-        if (!data.filter(function(d) { return !d.disabled }).length) {
-          data.map(function(d) {
+        if (!data.filter(d => !d.disabled).length) {
+          data.map(d => {
             d.disabled = false;
             return d;
           });
@@ -193,10 +201,10 @@ nv.models.stackedAreaChart = function() {
         selection.transition().call(chart);
       });
 
-      controls.dispatch.on('legendClick', function(d,i) {
+      controls.dispatch.on('legendClick', (d, i) => {
         if (!d.disabled) return;
 
-        controlsData = controlsData.map(function(s) {
+        controlsData = controlsData.map(s => {
           s.disabled = true;
           return s;
         });
@@ -217,15 +225,14 @@ nv.models.stackedAreaChart = function() {
         selection.transition().call(chart);
       });
 
-      dispatch.on('tooltipShow', function(e) {
+      dispatch.on('tooltipShow', e => {
         if (tooltips) showTooltip(e, that.parentNode);
       });
-
     });
 
 
     //TODO: decide if this makes sense to add into all the models for ease of updating (updating without needing the selection)
-    chart.update = function() { selection.transition().call(chart) };
+    chart.update = () => { selection.transition().call(chart) };
     chart.container = this; // I need a reference to the container in order to have outside code check if the chart is visible or not
 
     return chart;
@@ -237,11 +244,11 @@ nv.models.stackedAreaChart = function() {
   // Event Handling/Dispatching (out of chart's scope)
   //------------------------------------------------------------
 
-  stacked.dispatch.on('tooltipShow', function(e) {
+  stacked.dispatch.on('tooltipShow', e => {
     //disable tooltips when value ~= 0
     //// TODO: consider removing points from voronoi that have 0 value instead of this hack
     if (!Math.round(stacked.y()(e.point) * 100)) {  // 100 will not be good for very small numbers... will have to think about making this valu dynamic, based on data range
-      setTimeout(function() { d3.selectAll('.point.hover').classed('hover', false) }, 0);
+      setTimeout(() => { d3.selectAll('.point.hover').classed('hover', false) }, 0);
       return false;
     }
 
@@ -249,11 +256,11 @@ nv.models.stackedAreaChart = function() {
     dispatch.tooltipShow(e);
   });
 
-  stacked.dispatch.on('tooltipHide', function(e) {
+  stacked.dispatch.on('tooltipHide', e => {
     dispatch.tooltipHide(e);
   });
 
-  dispatch.on('tooltipHide', function() {
+  dispatch.on('tooltipHide', () => {
     if (tooltips) nv.tooltip.cleanup();
   });
 

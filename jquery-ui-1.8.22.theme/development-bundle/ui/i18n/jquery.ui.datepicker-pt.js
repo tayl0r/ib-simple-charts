@@ -1,5 +1,5 @@
 /* Portuguese initialisation for the jQuery UI date picker plugin. */
-jQuery(function($){
+jQuery($ => {
 	$.datepicker.regional['pt'] = {
 		closeText: 'Fechar',
 		prevText: '&#x3c;Anterior',
