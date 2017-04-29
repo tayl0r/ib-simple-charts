@@ -1,6 +1,6 @@
 /* Estonian initialisation for the jQuery UI date picker plugin. */
 /* Written by Mart Sõmermaa (mrts.pydev at gmail com). */
-jQuery(function($){
+jQuery($ => {
 	$.datepicker.regional['et'] = {
 		closeText: 'Sulge',
 		prevText: 'Eelnev',

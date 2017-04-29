@@ -1,6 +1,6 @@
 /* Chinese initialisation for the jQuery UI date picker plugin. */
 /* Written by Ressol (ressol@gmail.com). */
-jQuery(function($){
+jQuery($ => {
 	$.datepicker.regional['zh-TW'] = {
 		closeText: '關閉',
 		prevText: '&#x3c;上月',

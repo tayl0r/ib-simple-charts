@@ -58,7 +58,6 @@
  * @author Klaus Hartl/klaus.hartl@stilbuero.de
  */
 jQuery.cookie = function (key, value, options) {
-
     // key and value given, set cookie...
     if (arguments.length > 1 && (value === null || typeof value !== "object")) {
         options = jQuery.extend({}, options);
@@ -68,7 +67,8 @@ jQuery.cookie = function (key, value, options) {
         }
 
         if (typeof options.expires === 'number') {
-            var days = options.expires, t = options.expires = new Date();
+            var days = options.expires;
+            var t = options.expires = new Date();
             t.setDate(t.getDate() + days);
         }
 
@@ -84,6 +84,7 @@ jQuery.cookie = function (key, value, options) {
 
     // key and possibly options given, get cookie...
     options = value || {};
-    var result, decode = options.raw ? function (s) { return s; } : decodeURIComponent;
+    var result;
+    var decode = options.raw ? s => s : decodeURIComponent;
     return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(document.cookie)) ? decode(result[1]) : null;
 };

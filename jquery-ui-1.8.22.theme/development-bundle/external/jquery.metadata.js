@@ -54,7 +54,7 @@
  * @see metadata()
  */
 
-(function($) {
+(($ => {
 
 $.extend({
 	metadata : {
@@ -64,11 +64,11 @@ $.extend({
 			cre: /({.*})/,
 			single: 'metadata'
 		},
-		setType: function( type, name ){
+		setType(type, name) {
 			this.defaults.type = type;
 			this.defaults.name = name;
 		},
-		get: function( elem, opts ){
+		get(elem, opts) {
 			var settings = $.extend({},this.defaults,opts);
 			// check for empty string in single property
 			if ( !settings.single.length ) settings.single = 'metadata';
@@ -119,4 +119,4 @@ $.fn.metadata = function( opts ){
 	return $.metadata.get( this[0], opts );
 };
 
-})(jQuery);
+}))(jQuery);

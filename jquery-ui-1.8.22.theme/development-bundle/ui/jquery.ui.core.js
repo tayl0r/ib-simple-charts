@@ -7,7 +7,7 @@
  *
  * http://docs.jquery.com/UI
  */
-(function( $, undefined ) {
+((($, undefined) => {
 
 // prevent duplicate loading
 // this is only a problem because we proxy existing functions
@@ -61,21 +61,21 @@ $.fn.extend({
 	propAttr: $.fn.prop || $.fn.attr,
 
 	_focus: $.fn.focus,
-	focus: function( delay, fn ) {
+	focus(delay, fn) {
 		return typeof delay === "number" ?
 			this.each(function() {
 				var elem = this;
-				setTimeout(function() {
+				setTimeout(() => {
 					$( elem ).focus();
 					if ( fn ) {
 						fn.call( elem );
 					}
 				}, delay );
 			}) :
-			this._focus.apply( this, arguments );
+			this._focus(...arguments);
 	},
 
-	scrollParent: function() {
+	scrollParent() {
 		var scrollParent;
 		if (($.browser.msie && (/(static|relative)/).test(this.css('position'))) || (/absolute/).test(this.css('position'))) {
 			scrollParent = this.parents().filter(function() {
@@ -90,14 +90,16 @@ $.fn.extend({
 		return (/fixed/).test(this.css('position')) || !scrollParent.length ? $(document) : scrollParent;
 	},
 
-	zIndex: function( zIndex ) {
+	zIndex(zIndex) {
 		if ( zIndex !== undefined ) {
 			return this.css( "zIndex", zIndex );
 		}
 
 		if ( this.length ) {
-			var elem = $( this[ 0 ] ), position, value;
-			while ( elem.length && elem[ 0 ] !== document ) {
+            var elem = $( this[ 0 ] );
+            var position;
+            var value;
+            while ( elem.length && elem[ 0 ] !== document ) {
 				// Ignore z-index if position is set to a value where z-index is ignored by the browser
 				// This makes behavior of this function consistent across browsers
 				// WebKit always returns auto if the element is positioned
@@ -114,36 +116,37 @@ $.fn.extend({
 				}
 				elem = elem.parent();
 			}
-		}
+        }
 
 		return 0;
 	},
 
-	disableSelection: function() {
+	disableSelection() {
 		return this.bind( ( $.support.selectstart ? "selectstart" : "mousedown" ) +
-			".ui-disableSelection", function( event ) {
+			".ui-disableSelection", event => {
 				event.preventDefault();
 			});
 	},
 
-	enableSelection: function() {
+	enableSelection() {
 		return this.unbind( ".ui-disableSelection" );
 	}
 });
 
 // support: jQuery <1.8
 if ( !$( "<a>" ).outerWidth( 1 ).jquery ) {
-	$.each( [ "Width", "Height" ], function( i, name ) {
-		var side = name === "Width" ? [ "Left", "Right" ] : [ "Top", "Bottom" ],
-			type = name.toLowerCase(),
-			orig = {
-				innerWidth: $.fn.innerWidth,
-				innerHeight: $.fn.innerHeight,
-				outerWidth: $.fn.outerWidth,
-				outerHeight: $.fn.outerHeight
-			};
+	$.each( [ "Width", "Height" ], (i, name) => {
+        var side = name === "Width" ? [ "Left", "Right" ] : [ "Top", "Bottom" ];
+        var type = name.toLowerCase();
 
-		function reduce( elem, size, border, margin ) {
+        var orig = {
+            innerWidth: $.fn.innerWidth,
+            innerHeight: $.fn.innerHeight,
+            outerWidth: $.fn.outerWidth,
+            outerHeight: $.fn.outerHeight
+        };
+
+        function reduce( elem, size, border, margin ) {
 			$.each( side, function() {
 				size -= parseFloat( $.curCSS( elem, "padding" + this, true) ) || 0;
 				if ( border ) {
@@ -156,7 +159,7 @@ if ( !$( "<a>" ).outerWidth( 1 ).jquery ) {
 			return size;
 		}
 
-		$.fn[ "inner" + name ] = function( size ) {
+        $.fn[ "inner" + name ] = function( size ) {
 			if ( size === undefined ) {
 				return orig[ "inner" + name ].call( this );
 			}
@@ -166,7 +169,7 @@ if ( !$( "<a>" ).outerWidth( 1 ).jquery ) {
 			});
 		};
 
-		$.fn[ "outer" + name] = function( size, margin ) {
+        $.fn[ "outer" + name] = function( size, margin ) {
 			if ( typeof size !== "number" ) {
 				return orig[ "outer" + name ].call( this, size );
 			}
@@ -175,22 +178,22 @@ if ( !$( "<a>" ).outerWidth( 1 ).jquery ) {
 				$( this).css( type, reduce( this, size, true, margin ) + "px" );
 			});
 		};
-	});
+    });
 }
 
 // selectors
 function focusable( element, isTabIndexNotNaN ) {
 	var nodeName = element.nodeName.toLowerCase();
 	if ( "area" === nodeName ) {
-		var map = element.parentNode,
-			mapName = map.name,
-			img;
-		if ( !element.href || !mapName || map.nodeName.toLowerCase() !== "map" ) {
+        var map = element.parentNode;
+        var mapName = map.name;
+        var img;
+        if ( !element.href || !mapName || map.nodeName.toLowerCase() !== "map" ) {
 			return false;
 		}
-		img = $( "img[usemap=#" + mapName + "]" )[0];
-		return !!img && visible( img );
-	}
+        img = $( "img[usemap=#" + mapName + "]" )[0];
+        return !!img && visible( img );
+    }
 	return ( /input|select|textarea|button|object/.test( nodeName )
 		? !element.disabled
 		: "a" == nodeName
@@ -209,50 +212,43 @@ function visible( element ) {
 
 $.extend( $.expr[ ":" ], {
 	data: $.expr.createPseudo ?
-		$.expr.createPseudo(function( dataName ) {
-			return function( elem ) {
-				return !!$.data( elem, dataName );
-			};
-		}) :
-		// support: jQuery <1.8
-		function( elem, i, match ) {
-			return !!$.data( elem, match[ 3 ] );
-		},
+		$.expr.createPseudo(dataName => elem => !!$.data( elem, dataName )) :
+		(elem, i, match) => !!$.data( elem, match[ 3 ] ),
 
-	focusable: function( element ) {
+	focusable(element) {
 		return focusable( element, !isNaN( $.attr( element, "tabindex" ) ) );
 	},
 
-	tabbable: function( element ) {
-		var tabIndex = $.attr( element, "tabindex" ),
-			isTabIndexNaN = isNaN( tabIndex );
-		return ( isTabIndexNaN || tabIndex >= 0 ) && focusable( element, !isTabIndexNaN );
-	}
+	tabbable(element) {
+        var tabIndex = $.attr( element, "tabindex" );
+        var isTabIndexNaN = isNaN( tabIndex );
+        return ( isTabIndexNaN || tabIndex >= 0 ) && focusable( element, !isTabIndexNaN );
+    }
 });
 
 // support
-$(function() {
-	var body = document.body,
-		div = body.appendChild( div = document.createElement( "div" ) );
+$(() => {
+    var body = document.body;
+    var div = body.appendChild( div = document.createElement( "div" ) );
 
-	// access offsetHeight before setting the style to prevent a layout bug
-	// in IE 9 which causes the elemnt to continue to take up space even
-	// after it is removed from the DOM (#8026)
-	div.offsetHeight;
+    // access offsetHeight before setting the style to prevent a layout bug
+    // in IE 9 which causes the elemnt to continue to take up space even
+    // after it is removed from the DOM (#8026)
+    div.offsetHeight;
 
-	$.extend( div.style, {
+    $.extend( div.style, {
 		minHeight: "100px",
 		height: "auto",
 		padding: 0,
 		borderWidth: 0
 	});
 
-	$.support.minHeight = div.offsetHeight === 100;
-	$.support.selectstart = "onselectstart" in div;
+    $.support.minHeight = div.offsetHeight === 100;
+    $.support.selectstart = "onselectstart" in div;
 
-	// set display to none to avoid a layout bug in IE
-	// http://dev.jquery.com/ticket/4014
-	body.removeChild( div ).style.display = "none";
+    // set display to none to avoid a layout bug in IE
+    // http://dev.jquery.com/ticket/4014
+    body.removeChild( div ).style.display = "none";
 });
 
 // jQuery <1.4.3 uses curCSS, in 1.4.3 - 1.7.2 curCSS = css, 1.8+ only has css
@@ -268,14 +264,14 @@ if ( !$.curCSS ) {
 $.extend( $.ui, {
 	// $.ui.plugin is deprecated.  Use the proxy pattern instead.
 	plugin: {
-		add: function( module, option, set ) {
+		add(module, option, set) {
 			var proto = $.ui[ module ].prototype;
 			for ( var i in set ) {
 				proto.plugins[ i ] = proto.plugins[ i ] || [];
 				proto.plugins[ i ].push( [ option, set[ i ] ] );
 			}
 		},
-		call: function( instance, name, args ) {
+		call(instance, name, args) {
 			var set = instance.plugins[ name ];
 			if ( !set || !instance.element[ 0 ].parentNode ) {
 				return;
@@ -290,45 +286,44 @@ $.extend( $.ui, {
 	},
 	
 	// will be deprecated when we switch to jQuery 1.4 - use jQuery.contains()
-	contains: function( a, b ) {
+	contains(a, b) {
 		return document.compareDocumentPosition ?
 			a.compareDocumentPosition( b ) & 16 :
 			a !== b && a.contains( b );
 	},
 	
 	// only used by resizable
-	hasScroll: function( el, a ) {
-	
-		//If overflow is hidden, the element might have extra content, but the user wants to hide it
-		if ( $( el ).css( "overflow" ) === "hidden") {
+	hasScroll(el, a) {
+        //If overflow is hidden, the element might have extra content, but the user wants to hide it
+        if ( $( el ).css( "overflow" ) === "hidden") {
 			return false;
 		}
-	
-		var scroll = ( a && a === "left" ) ? "scrollLeft" : "scrollTop",
-			has = false;
-	
-		if ( el[ scroll ] > 0 ) {
+
+        var scroll = ( a && a === "left" ) ? "scrollLeft" : "scrollTop";
+        var has = false;
+
+        if ( el[ scroll ] > 0 ) {
 			return true;
 		}
-	
-		// TODO: determine which cases actually cause this to happen
-		// if the element doesn't have the scroll set, see if it's possible to
-		// set the scroll
-		el[ scroll ] = 1;
-		has = ( el[ scroll ] > 0 );
-		el[ scroll ] = 0;
-		return has;
-	},
+
+        // TODO: determine which cases actually cause this to happen
+        // if the element doesn't have the scroll set, see if it's possible to
+        // set the scroll
+        el[ scroll ] = 1;
+        has = ( el[ scroll ] > 0 );
+        el[ scroll ] = 0;
+        return has;
+    },
 	
 	// these are odd functions, fix the API or move into individual plugins
-	isOverAxis: function( x, reference, size ) {
+	isOverAxis(x, reference, size) {
 		//Determines when x coordinate is over "b" element axis
 		return ( x > reference ) && ( x < ( reference + size ) );
 	},
-	isOver: function( y, x, top, left, height, width ) {
+	isOver(y, x, top, left, height, width) {
 		//Determines when x, y coordinates is over "b" element
 		return $.ui.isOverAxis( y, top, height ) && $.ui.isOverAxis( x, left, width );
 	}
 });
 
-})( jQuery );
+}))( jQuery );

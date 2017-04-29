@@ -10,23 +10,24 @@
  * Depends:
  *	jquery.effects.core.js
  */
-(function( $, undefined ) {
+((($, undefined) => {
 
 $.effects.highlight = function(o) {
 	return this.queue(function() {
-		var elem = $(this),
-			props = ['backgroundImage', 'backgroundColor', 'opacity'],
-			mode = $.effects.setMode(elem, o.options.mode || 'show'),
-			animation = {
-				backgroundColor: elem.css('backgroundColor')
-			};
+        var elem = $(this);
+        var props = ['backgroundImage', 'backgroundColor', 'opacity'];
+        var mode = $.effects.setMode(elem, o.options.mode || 'show');
 
-		if (mode == 'hide') {
+        var animation = {
+            backgroundColor: elem.css('backgroundColor')
+        };
+
+        if (mode == 'hide') {
 			animation.opacity = 0;
 		}
 
-		$.effects.save(elem, props);
-		elem
+        $.effects.save(elem, props);
+        elem
 			.show()
 			.css({
 				backgroundImage: 'none',
@@ -36,15 +37,15 @@ $.effects.highlight = function(o) {
 				queue: false,
 				duration: o.duration,
 				easing: o.options.easing,
-				complete: function() {
+				complete(...args) {
 					(mode == 'hide' && elem.hide());
 					$.effects.restore(elem, props);
 					(mode == 'show' && !$.support.opacity && this.style.removeAttribute('filter'));
-					(o.callback && o.callback.apply(this, arguments));
+					(o.callback && o.callback.apply(this, args));
 					elem.dequeue();
 				}
 			});
-	});
+    });
 };
 
-})(jQuery);
+}))(jQuery);

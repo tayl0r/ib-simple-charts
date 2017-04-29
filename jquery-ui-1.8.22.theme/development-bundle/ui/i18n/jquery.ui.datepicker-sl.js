@@ -1,7 +1,7 @@
 /* Slovenian initialisation for the jQuery UI date picker plugin. */
 /* Written by Jaka Jancar (jaka@kubje.org). */
 /* c = &#x10D;, s = &#x161; z = &#x17E; C = &#x10C; S = &#x160; Z = &#x17D; */
-jQuery(function($){
+jQuery($ => {
 	$.datepicker.regional['sl'] = {
 		closeText: 'Zapri',
 		prevText: '&lt;Prej&#x161;nji',

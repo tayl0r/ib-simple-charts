@@ -1,6 +1,6 @@
 /* Esperanto initialisation for the jQuery UI date picker plugin. */
 /* Written by Olivier M. (olivierweb@ifrance.com). */
-jQuery(function($){
+jQuery($ => {
 	$.datepicker.regional['eo'] = {
 		closeText: 'Fermi',
 		prevText: '&lt;Anta',

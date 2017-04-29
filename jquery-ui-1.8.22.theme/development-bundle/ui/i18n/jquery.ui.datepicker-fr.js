@@ -2,7 +2,7 @@
 /* Written by Keith Wood (kbwood{at}iinet.com.au),
               Stéphane Nahmani (sholby@sholby.net),
               Stéphane Raimbault <stephane.raimbault@gmail.com> */
-jQuery(function($){
+jQuery($ => {
 	$.datepicker.regional['fr'] = {
 		closeText: 'Fermer',
 		prevText: 'Précédent',

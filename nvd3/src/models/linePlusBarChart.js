@@ -1,38 +1,38 @@
 
-nv.models.linePlusBarChart = function() {
-  var margin = {top: 30, right: 60, bottom: 50, left: 60},
-      width = null,
-      height = null,
-      getX = function(d) { return d.x },
-      getY = function(d) { return d.y },
-      color = nv.utils.defaultColor(),
-      showLegend = true,
-      tooltips = true,
-      tooltip = function(key, x, y, e, graph) { 
-        return '<h3>' + key + '</h3>' +
-               '<p>' +  y + ' at ' + x + '</p>'
-      },
-      noData = "No Data Available."
-      ;
+nv.models.linePlusBarChart = () => {
+  var margin = {top: 30, right: 60, bottom: 50, left: 60};
+  var width = null;
+  var height = null;
+  var getX = d => d.x;
+  var getY = d => d.y;
+  var color = nv.utils.defaultColor();
+  var showLegend = true;
+  var tooltips = true;
 
+  var tooltip = (key, x, y, e, graph) => '<h3>' + key + '</h3>' +
+         '<p>' +  y + ' at ' + x + '</p>';
 
-  var lines = nv.models.line(),
-      bars = nv.models.historicalBar(),
-      x = d3.scale.linear(), // needs to be both line and historicalBar x Axis
-      y1 = bars.yScale(),
-      y2 = lines.yScale(),
-      xAxis = nv.models.axis().scale(x).orient('bottom').tickPadding(5),
-      yAxis1 = nv.models.axis().scale(y1).orient('left'),
-      yAxis2 = nv.models.axis().scale(y2).orient('right'),
-      legend = nv.models.legend().height(30),
-      dispatch = d3.dispatch('tooltipShow', 'tooltipHide');
+  var noData = "No Data Available.";
+  var lines = nv.models.line();
+  var bars = nv.models.historicalBar();
 
-  var showTooltip = function(e, offsetElement) {
-    var left = e.pos[0] + ( offsetElement.offsetLeft || 0 ),
-        top = e.pos[1] + ( offsetElement.offsetTop || 0),
-        x = xAxis.tickFormat()(lines.x()(e.point, e.pointIndex)),
-        y = (e.series.bar ? yAxis1 : yAxis2).tickFormat()(lines.y()(e.point, e.pointIndex)),
-        content = tooltip(e.series.key, x, y, e, chart);
+  var // needs to be both line and historicalBar x Axis
+  x = d3.scale.linear();
+
+  var y1 = bars.yScale();
+  var y2 = lines.yScale();
+  var xAxis = nv.models.axis().scale(x).orient('bottom').tickPadding(5);
+  var yAxis1 = nv.models.axis().scale(y1).orient('left');
+  var yAxis2 = nv.models.axis().scale(y2).orient('right');
+  var legend = nv.models.legend().height(30);
+  var dispatch = d3.dispatch('tooltipShow', 'tooltipHide');
+
+  var showTooltip = (e, offsetElement) => {
+    var left = e.pos[0] + ( offsetElement.offsetLeft || 0 );
+    var top = e.pos[1] + ( offsetElement.offsetTop || 0);
+    var x = xAxis.tickFormat()(lines.x()(e.point, e.pointIndex));
+    var y = (e.series.bar ? yAxis1 : yAxis2).tickFormat()(lines.y()(e.point, e.pointIndex));
+    var content = tooltip(e.series.key, x, y, e, chart);
 
     nv.tooltip.show([left, top], content, e.value < 0 ? 'n' : 's');
   };
@@ -41,19 +41,20 @@ nv.models.linePlusBarChart = function() {
 
   function chart(selection) {
     selection.each(function(data) {
-      var container = d3.select(this),
-          that = this;
+      var container = d3.select(this);
+      var that = this;
 
       var availableWidth = (width  || parseInt(container.style('width')) || 960)
-                             - margin.left - margin.right,
-          availableHeight = (height || parseInt(container.style('height')) || 400)
-                             - margin.top - margin.bottom;
+                             - margin.left - margin.right;
+
+      var availableHeight = (height || parseInt(container.style('height')) || 400)
+                         - margin.top - margin.bottom;
 
 
       //------------------------------------------------------------
       // Display No Data message if there's nothing to show.
 
-      if (!data || !data.length || !data.filter(function(d) { return d.values.length }).length) {
+      if (!data || !data.length || !data.filter(d => d.values.length).length) {
         container.append('text')
           .attr('class', 'nvd3 nv-noData')
           .attr('x', availableWidth / 2)
@@ -71,43 +72,41 @@ nv.models.linePlusBarChart = function() {
 
 
 
-      var dataBars = data.filter(function(d) { return !d.disabled && d.bar });
+      var dataBars = data.filter(d => !d.disabled && d.bar);
 
-      var dataLines = data.filter(function(d) { return !d.disabled && !d.bar });
+      var dataLines = data.filter(d => !d.disabled && !d.bar);
 
 
 
       //TODO: try to remove x scale computation from this layer
 
-      var series1 = data.filter(function(d) { return !d.disabled && d.bar })
-            .map(function(d) {
-              return d.values.map(function(d,i) {
-                return { x: getX(d,i), y: getY(d,i) }
-              })
-            });
+      var series1 = data.filter(d => !d.disabled && d.bar)
+            .map(d => d.values.map((d, i) => ({
+        x: getX(d,i),
+        y: getY(d,i)
+      })));
 
-      var series2 = data.filter(function(d) { return !d.disabled && !d.bar })
-            .map(function(d) {
-              return d.values.map(function(d,i) {
-                return { x: getX(d,i), y: getY(d,i) }
-              })
-            });
+      var series2 = data.filter(d => !d.disabled && !d.bar)
+            .map(d => d.values.map((d, i) => ({
+        x: getX(d,i),
+        y: getY(d,i)
+      })));
 
-      x   .domain(d3.extent(d3.merge(series1.concat(series2)), function(d) { return d.x } ))
+      x   .domain(d3.extent(d3.merge(series1.concat(series2)), d => d.x ))
           .range([0, availableWidth]);
 
 
 
-          /*
-      x   .domain(d3.extent(d3.merge(data.map(function(d) { return d.values })), getX ))
-          .range([0, availableWidth]);
+      /*
+  x   .domain(d3.extent(d3.merge(data.map(function(d) { return d.values })), getX ))
+      .range([0, availableWidth]);
 
-      y1  .domain(d3.extent(d3.merge(dataBars), function(d) { return d.y } ))
-          .range([availableHeight, 0]);
+  y1  .domain(d3.extent(d3.merge(dataBars), function(d) { return d.y } ))
+      .range([availableHeight, 0]);
 
-      y2  .domain(d3.extent(d3.merge(dataLines), function(d) { return d.y } ))
-          .range([availableHeight, 0]);
-         */
+  y2  .domain(d3.extent(d3.merge(dataLines), function(d) { return d.y } ))
+      .range([availableHeight, 0]);
+     */
 
 
 
@@ -130,7 +129,7 @@ nv.models.linePlusBarChart = function() {
         legend.width( availableWidth / 2 );
 
         g.select('.nv-legendWrap')
-            .datum(data.map(function(series) {
+            .datum(data.map(series => {
               series.originalKey = series.originalKey === undefined ? series.key : series.originalKey;
               series.key = series.originalKey + (series.bar ? ' (left axis)' : ' (right axis)');
               return series;
@@ -153,16 +152,12 @@ nv.models.linePlusBarChart = function() {
       lines
         .width(availableWidth)
         .height(availableHeight)
-        .color(data.map(function(d,i) {
-          return d.color || color(d, i);
-        }).filter(function(d,i) { return !data[i].disabled && !data[i].bar }))
+        .color(data.map((d, i) => d.color || color(d, i)).filter((d, i) => !data[i].disabled && !data[i].bar))
 
       bars
         .width(availableWidth)
         .height(availableHeight)
-        .color(data.map(function(d,i) {
-          return d.color || color(d, i);
-        }).filter(function(d,i) { return !data[i].disabled && data[i].bar }))
+        .color(data.map((d, i) => d.color || color(d, i)).filter((d, i) => !data[i].disabled && data[i].bar))
 
 
 
@@ -212,11 +207,11 @@ nv.models.linePlusBarChart = function() {
 
 
 
-      legend.dispatch.on('legendClick', function(d,i) { 
+      legend.dispatch.on('legendClick', (d, i) => { 
         d.disabled = !d.disabled;
 
-        if (!data.filter(function(d) { return !d.disabled }).length) {
-          data.map(function(d) {
+        if (!data.filter(d => !d.disabled).length) {
+          data.map(d => {
             d.disabled = false;
             wrap.selectAll('.nv-series').classed('disabled', false);
             return d;
@@ -227,33 +222,32 @@ nv.models.linePlusBarChart = function() {
       });
 
 
-      lines.dispatch.on('elementMouseover.tooltip', function(e) {
+      lines.dispatch.on('elementMouseover.tooltip', e => {
         e.pos = [e.pos[0] +  margin.left, e.pos[1] + margin.top];
         dispatch.tooltipShow(e);
       });
-      if (tooltips) dispatch.on('tooltipShow', function(e) { showTooltip(e, that.parentNode) } ); // TODO: maybe merge with above?
+      if (tooltips) dispatch.on('tooltipShow', e => { showTooltip(e, that.parentNode) } ); // TODO: maybe merge with above?
 
-      lines.dispatch.on('elementMouseout.tooltip', function(e) {
+      lines.dispatch.on('elementMouseout.tooltip', e => {
         dispatch.tooltipHide(e);
       });
       if (tooltips) dispatch.on('tooltipHide', nv.tooltip.cleanup);
 
 
-      bars.dispatch.on('elementMouseover.tooltip', function(e) {
+      bars.dispatch.on('elementMouseover.tooltip', e => {
         e.pos = [e.pos[0] +  margin.left, e.pos[1] + margin.top];
         dispatch.tooltipShow(e);
       });
-      if (tooltips) dispatch.on('tooltipShow', function(e) { showTooltip(e, that.parentNode) } ); // TODO: maybe merge with above?
+      if (tooltips) dispatch.on('tooltipShow', e => { showTooltip(e, that.parentNode) } ); // TODO: maybe merge with above?
 
-      bars.dispatch.on('elementMouseout.tooltip', function(e) {
+      bars.dispatch.on('elementMouseout.tooltip', e => {
         dispatch.tooltipHide(e);
       });
       if (tooltips) dispatch.on('tooltipHide', nv.tooltip.cleanup);
 
 
-      chart.update = function() { selection.transition().call(chart) };
+      chart.update = () => { selection.transition().call(chart) };
       chart.container = this; // I need a reference to the container in order to have outside code check if the chart is visible or not
-
     });
 
     return chart;

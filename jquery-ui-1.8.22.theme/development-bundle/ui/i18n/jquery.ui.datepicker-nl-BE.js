@@ -1,6 +1,6 @@
 /* Dutch (Belgium) initialisation for the jQuery UI date picker plugin. */
 /* David De Sloovere @DavidDeSloovere */
-jQuery(function($){
+jQuery($ => {
 	$.datepicker.regional['nl-BE'] = {
 		closeText: 'Sluiten',
 		prevText: '←',

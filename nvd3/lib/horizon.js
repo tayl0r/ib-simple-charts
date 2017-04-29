@@ -1,13 +1,19 @@
-(function() {
-  d3.horizon = function() {
-    var bands = 1, // between 1 and 5, typically
-        mode = "offset", // or mirror
-        interpolate = "linear", // or basis, monotone, step-before, etc.
-        x = d3_horizonX,
-        y = d3_horizonY,
-        w = 960,
-        h = 40,
-        duration = 0;
+((() => {
+  d3.horizon = () => {
+    var // between 1 and 5, typically
+    bands = 1;
+
+    var // or mirror
+    mode = "offset";
+
+    var // or basis, monotone, step-before, etc.
+    interpolate = "linear";
+
+    var x = d3_horizonX;
+    var y = d3_horizonY;
+    var w = 960;
+    var h = 40;
+    var duration = 0;
 
     var color = d3.scale.linear()
         .domain([-1, 0, 1])
@@ -16,19 +22,24 @@
     // For each small multiple…
     function horizon(g) {
       g.each(function(d, i) {
-        var g = d3.select(this),
-            n = 2 * bands + 1,
-            xMin = Infinity,
-            xMax = -Infinity,
-            yMax = -Infinity,
-            x0, // old x-scale
-            y0, // old y-scale
-            id; // unique id for paths
+        var g = d3.select(this); // unique id for paths
+        var n = 2 * bands + 1;
+        var xMin = Infinity;
+        var xMax = -Infinity;
+        var yMax = -Infinity;
+
+        var // old x-scale
+        x0;
+
+        var // old y-scale
+        y0;
+
+        var id;
 
         // Compute x- and y-values along with extents.
         var data = d.map(function(d, i) {
-          var xv = x.call(this, d, i),
-              yv = y.call(this, d, i);
+          var xv = x.call(this, d, i);
+          var yv = y.call(this, d, i);
           if (xv < xMin) xMin = xv;
           if (xv > xMax) xMax = xv;
           if (-yv > yMax) yMax = -yv;
@@ -37,9 +48,10 @@
         });
 
         // Compute the new x- and y-scales, and transform.
-        var x1 = d3.scale.linear().domain([xMin, xMax]).range([0, w]),
-            y1 = d3.scale.linear().domain([0, yMax]).range([0, h * bands]),
-            t1 = d3_horizonTransform(bands, h, mode);
+        var x1 = d3.scale.linear().domain([xMin, xMax]).range([0, w]);
+
+        var y1 = d3.scale.linear().domain([0, yMax]).range([0, h * bands]);
+        var t1 = d3_horizonTransform(bands, h, mode);
 
         // Retrieve the old scales, if this is an update.
         if (this.__chart__) {
@@ -82,14 +94,14 @@
 
         var d0 = d3_horizonArea
             .interpolate(interpolate)
-            .x(function(d) { return x0(d[0]); })
+            .x(d => x0(d[0]))
             .y0(h * bands)
-            .y1(function(d) { return h * bands - y0(d[1]); })
+            .y1(d => h * bands - y0(d[1]))
             (data);
 
         var d1 = d3_horizonArea
-            .x(function(d) { return x1(d[0]); })
-            .y1(function(d) { return h * bands - y1(d[1]); })
+            .x(d => x1(d[0]))
+            .y1(d => h * bands - y1(d[1]))
             (data);
 
         path.enter().append("path")
@@ -110,7 +122,7 @@
             .remove();
 
         // Stash the new scales.
-        this.__chart__ = {x: x1, y: y1, t: t1, id: id};
+        this.__chart__ = {x: x1, y: y1, t: t1, id};
       });
       d3.timer.flush();
     }
@@ -173,8 +185,8 @@
     return horizon;
   };
 
-  var d3_horizonArea = d3.svg.area(),
-      d3_horizonId = 0;
+  var d3_horizonArea = d3.svg.area();
+  var d3_horizonId = 0;
 
   function d3_horizonX(d) {
     return d[0];
@@ -186,7 +198,7 @@
 
   function d3_horizonTransform(bands, h, mode) {
     return mode == "offset"
-        ? function(d) { return "translate(0," + (d + (d < 0) - bands) * h + ")"; }
-        : function(d) { return (d < 0 ? "scale(1,-1)" : "") + "translate(0," + (d - bands) * h + ")"; };
+        ? d => "translate(0," + (d + (d < 0) - bands) * h + ")"
+        : d => (d < 0 ? "scale(1,-1)" : "") + "translate(0," + (d - bands) * h + ")";
   }
-})();
+}))();

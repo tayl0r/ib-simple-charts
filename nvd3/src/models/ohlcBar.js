@@ -1,32 +1,35 @@
 //TODO: eitehr drastically clean up or deprecate this model
-nv.models.ohlcBar = function() {
-  var margin = {top: 0, right: 0, bottom: 0, left: 0},
-      width = 960,
-      height = 500,
-      id = Math.floor(Math.random() * 10000), //Create semi-unique ID in case user doesn't select one
-      getX = function(d) { return d.x },
-      getY = function(d) { return d.y },
-      getOpen = function(d) { return d.open },
-      getClose = function(d) { return d.close },
-      getHigh = function(d) { return d.high },
-      getLow = function(d) { return d.low },
-      forceX = [],
-      forceY = [],
-      clipEdge = true,
-      color = nv.utils.defaultColor(),
-      xDomain, yDomain;
+nv.models.ohlcBar = () => {
+  var margin = {top: 0, right: 0, bottom: 0, left: 0};
+  var width = 960;
+  var height = 500;
 
-  var x = d3.scale.linear(),
-      y = d3.scale.linear(),
-      xAxis = d3.svg.axis().scale(x).orient('bottom'),
-      yAxis = d3.svg.axis().scale(y).orient('left'),
-      dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMouseover', 'elementMouseout');
+  var //Create semi-unique ID in case user doesn't select one
+  id = Math.floor(Math.random() * 10000);
+
+  var getX = d => d.x;
+  var getY = d => d.y;
+  var getOpen = d => d.open;
+  var getClose = d => d.close;
+  var getHigh = d => d.high;
+  var getLow = d => d.low;
+  var forceX = [];
+  var forceY = [];
+  var clipEdge = true;
+  var color = nv.utils.defaultColor();
+  var xDomain;
+  var yDomain;
+  var x = d3.scale.linear();
+  var y = d3.scale.linear();
+  var xAxis = d3.svg.axis().scale(x).orient('bottom');
+  var yAxis = d3.svg.axis().scale(y).orient('left');
+  var dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMouseover', 'elementMouseout');
 
 
   function chart(selection) {
     selection.each(function(data) {
-      var availableWidth = width - margin.left - margin.right,
-          availableHeight = height - margin.top - margin.bottom;
+      var availableWidth = width - margin.left - margin.right;
+      var availableHeight = height - margin.top - margin.bottom;
 
 
       x   .domain(xDomain || d3.extent(data[0].values.map(getX).concat(forceX) ))
@@ -53,12 +56,12 @@ nv.models.ohlcBar = function() {
 
 
       var parent = d3.select(this)
-          .on('click', function(d,i) {
+          .on('click', (d, i) => {
             dispatch.chartClick({
                 data: d,
                 index: i,
                 pos: d3.event,
-                id: id
+                id
             });
           });
 
@@ -92,14 +95,14 @@ nv.models.ohlcBar = function() {
 
 
       var ticks = wrap.select('.nv-ticks').selectAll('.nv-tick')
-          .data(function(d) { return d });
+          .data(d => d);
 
       ticks.exit().remove();
 
 
       var ticksEnter = ticks.enter().append('path')
-          .attr('class', function(d,i,j) { return (getOpen(d,i) > getClose(d,i) ? 'nv-tick negative' : 'nv-tick positive') + ' nv-tick-' + j + '-' + i })
-          .attr('d', function(d,i) {
+          .attr('class', (d, i, j) => (getOpen(d,i) > getClose(d,i) ? 'nv-tick negative' : 'nv-tick positive') + ' nv-tick-' + j + '-' + i)
+          .attr('d', (d, i) => {
             var w = (availableWidth / data[0].values.length) * .9;
             return 'm0,0l0,' 
                  + (y(getOpen(d,i))
@@ -119,7 +122,7 @@ nv.models.ohlcBar = function() {
                  + (-w/2)
                  + ',0z';
           })
-          .attr('transform', function(d,i) { return 'translate(' + x(getX(d,i)) + ',' + y(getHigh(d,i)) + ')'; })
+          .attr('transform', (d, i) => 'translate(' + x(getX(d,i)) + ',' + y(getHigh(d,i)) + ')')
           //.attr('fill', function(d,i) { return color[0]; })
           //.attr('stroke', function(d,i) { return color[0]; })
           //.attr('x', 0 )
@@ -147,7 +150,7 @@ nv.models.ohlcBar = function() {
                     e: d3.event
                 });
           })
-          .on('click', function(d,i) {
+          .on('click', (d, i) => {
                 dispatch.elementClick({
                     //label: d[label],
                     value: getY(d,i),
@@ -155,11 +158,11 @@ nv.models.ohlcBar = function() {
                     index: i,
                     pos: [x(getX(d,i)), y(getY(d,i))],
                     e: d3.event,
-                    id: id
+                    id
                 });
               d3.event.stopPropagation();
           })
-          .on('dblclick', function(d,i) {
+          .on('dblclick', (d, i) => {
               dispatch.elementDblClick({
                   //label: d[label],
                   value: getY(d,i),
@@ -167,16 +170,16 @@ nv.models.ohlcBar = function() {
                   index: i,
                   pos: [x(getX(d,i)), y(getY(d,i))],
                   e: d3.event,
-                  id: id
+                  id
               });
               d3.event.stopPropagation();
           });
 
       ticks
-          .attr('class', function(d,i,j) { return (getOpen(d,i) > getClose(d,i) ? 'nv-tick negative' : 'nv-tick positive') + ' nv-tick-' + j + '-' + i })
+          .attr('class', (d, i, j) => (getOpen(d,i) > getClose(d,i) ? 'nv-tick negative' : 'nv-tick positive') + ' nv-tick-' + j + '-' + i)
       d3.transition(ticks)
-          .attr('transform', function(d,i) { return 'translate(' + x(getX(d,i)) + ',' + y(getHigh(d,i)) + ')'; })
-          .attr('d', function(d,i) {
+          .attr('transform', (d, i) => 'translate(' + x(getX(d,i)) + ',' + y(getHigh(d,i)) + ')')
+          .attr('d', (d, i) => {
             var w = (availableWidth / data[0].values.length) * .9;
             return 'm0,0l0,'
                  + (y(getOpen(d,i))
@@ -197,14 +200,13 @@ nv.models.ohlcBar = function() {
                  + (-w/2)
                  + ',0z';
           })
-          //.attr('width', (availableWidth / data[0].values.length) * .9 )
+      //.attr('width', (availableWidth / data[0].values.length) * .9 )
 
 
       //d3.transition(ticks)
-          //.attr('y', function(d,i) {  return y(Math.max(0, getY(d,i))) })
-          //.attr('height', function(d,i) { return Math.abs(y(getY(d,i)) - y(0)) });
-          //.order();  // not sure if this makes any sense for this model
-
+      //.attr('y', function(d,i) {  return y(Math.max(0, getY(d,i))) })
+      //.attr('height', function(d,i) { return Math.abs(y(getY(d,i)) - y(0)) });
+      //.order();  // not sure if this makes any sense for this model
     });
 
     return chart;

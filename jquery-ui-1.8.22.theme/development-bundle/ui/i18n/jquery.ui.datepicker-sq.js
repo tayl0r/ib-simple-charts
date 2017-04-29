@@ -1,6 +1,6 @@
 /* Albanian initialisation for the jQuery UI date picker plugin. */
 /* Written by Flakron Bytyqi (flakron@gmail.com). */
-jQuery(function($){
+jQuery($ => {
 	$.datepicker.regional['sq'] = {
 		closeText: 'mbylle',
 		prevText: '&#x3c;mbrapa',

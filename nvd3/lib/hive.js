@@ -1,21 +1,21 @@
 d3.hive = {};
 
-d3.hive.link = function() {
-  var source = function(d) { return d.source; },
-      target = function(d) { return d.target; },
-      angle = function(d) { return d.angle; },
-      startRadius = function(d) { return d.radius; },
-      endRadius = startRadius,
-      arcOffset = -Math.PI / 2;
+d3.hive.link = () => {
+  var source = d => d.source;
+  var target = d => d.target;
+  var angle = d => d.angle;
+  var startRadius = d => d.radius;
+  var endRadius = startRadius;
+  var arcOffset = -Math.PI / 2;
 
   function link(d, i) {
-    var s = node(source, this, d, i),
-        t = node(target, this, d, i),
-        x;
+    var s = node(source, this, d, i);
+    var t = node(target, this, d, i);
+    var x;
     if (t.a < s.a) x = t, t = s, s = x;
     if (t.a - s.a > Math.PI) s.a += 2 * Math.PI;
-    var a1 = s.a + (t.a - s.a) / 3,
-        a2 = t.a - (t.a - s.a) / 3;
+    var a1 = s.a + (t.a - s.a) / 3;
+    var a2 = t.a - (t.a - s.a) / 3;
     return s.r0 - s.r1 || t.r0 - t.r1
         ? "M" + Math.cos(s.a) * s.r0 + "," + Math.sin(s.a) * s.r0
         + "L" + Math.cos(s.a) * s.r1 + "," + Math.sin(s.a) * s.r1
@@ -33,11 +33,11 @@ d3.hive.link = function() {
   }
 
   function node(method, thiz, d, i) {
-    var node = method.call(thiz, d, i),
-        a = +(typeof angle === "function" ? angle.call(thiz, node, i) : angle) + arcOffset,
-        r0 = +(typeof startRadius === "function" ? startRadius.call(thiz, node, i) : startRadius),
-        r1 = (startRadius === endRadius ? r0 : +(typeof endRadius === "function" ? endRadius.call(thiz, node, i) : endRadius));
-    return {r0: r0, r1: r1, a: a};
+    var node = method.call(thiz, d, i);
+    var a = +(typeof angle === "function" ? angle.call(thiz, node, i) : angle) + arcOffset;
+    var r0 = +(typeof startRadius === "function" ? startRadius.call(thiz, node, i) : startRadius);
+    var r1 = (startRadius === endRadius ? r0 : +(typeof endRadius === "function" ? endRadius.call(thiz, node, i) : endRadius));
+    return {r0, r1, a};
   }
 
   link.source = function(_) {

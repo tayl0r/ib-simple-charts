@@ -4,7 +4,7 @@
  * Version 2.1.2
  */
 
-(function($){
+(($ => {
 
 $.fn.bgiframe = ($.browser.msie && /msie 6\.0/i.test(navigator.userAgent) ? function(s) {
     s = $.extend({
@@ -36,4 +36,4 @@ function prop(n) {
     return n && n.constructor === Number ? n + 'px' : n;
 }
 
-})(jQuery);
+}))(jQuery);

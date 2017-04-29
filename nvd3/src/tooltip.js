@@ -4,14 +4,13 @@
  *****/
 
 
-(function() {
+((() => {
 
   var nvtooltip = window.nv.tooltip = {};
 
-  nvtooltip.show = function(pos, content, gravity, dist, parentContainer, classes) {
-
+  nvtooltip.show = (pos, content, gravity, dist, parentContainer, classes) => {
     var container = document.createElement('div');
-        container.className = 'nvtooltip ' + (classes ? classes : 'xy-tooltip');
+    container.className = 'nvtooltip ' + (classes ? classes : 'xy-tooltip');
 
     gravity = gravity || 's';
     dist = dist || 20;
@@ -25,13 +24,14 @@
 
     body.appendChild(container);
 
-    var height = parseInt(container.offsetHeight),
-        width = parseInt(container.offsetWidth),
-        windowWidth = nv.utils.windowSize().width,
-        windowHeight = nv.utils.windowSize().height,
-        scrollTop = body.scrollTop,
-        scrollLeft = body.scrollLeft,
-        left, top;
+    var height = parseInt(container.offsetHeight);
+    var width = parseInt(container.offsetWidth);
+    var windowWidth = nv.utils.windowSize().width;
+    var windowHeight = nv.utils.windowSize().height;
+    var scrollTop = body.scrollTop;
+    var scrollLeft = body.scrollLeft;
+    var left;
+    var top;
 
 
     switch (gravity) {
@@ -75,7 +75,7 @@
     return container;
   };
 
-  nvtooltip.cleanup = function() {
+  nvtooltip.cleanup = () => {
 
       // Find the tooltips, mark them for removal by this class (so others cleanups won't find it)
       var tooltips = document.getElementsByClassName('nvtooltip');
@@ -88,7 +88,7 @@
       }
 
 
-      setTimeout(function() {
+      setTimeout(() => {
 
           while (purging.length) {
              var removeMe = purging.pop();
@@ -98,4 +98,4 @@
   };
 
 
-})();
+}))();

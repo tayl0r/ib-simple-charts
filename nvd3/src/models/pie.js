@@ -1,34 +1,40 @@
 
-nv.models.pie = function() {
-  var margin = {top: 0, right: 0, bottom: 0, left: 0},
-      width = 500,
-      height = 500,
-      getValues = function(d) { return d.values },
-      getX = function(d) { return d.x },
-      getY = function(d) { return d.y },
-      id = Math.floor(Math.random() * 10000), //Create semi-unique ID in case user doesn't select one
-      color = nv.utils.defaultColor(),
-      valueFormat = d3.format(',.2f'),
-      showLabels = true,
-      donutLabelsOutside = false,
-      labelThreshold = .02, //if slice percentage is under this, don't show label
-      donut = false;
+nv.models.pie = () => {
+  var margin = {top: 0, right: 0, bottom: 0, left: 0};
+  var width = 500;
+  var height = 500;
+  var getValues = d => d.values;
+  var getX = d => d.x;
+  var getY = d => d.y;
+
+  var //Create semi-unique ID in case user doesn't select one
+  id = Math.floor(Math.random() * 10000);
+
+  var color = nv.utils.defaultColor();
+  var valueFormat = d3.format(',.2f');
+  var showLabels = true;
+  var donutLabelsOutside = false;
+
+  var //if slice percentage is under this, don't show label
+  labelThreshold = .02;
+
+  var donut = false;
 
   var  dispatch = d3.dispatch('chartClick', 'elementClick', 'elementDblClick', 'elementMouseover', 'elementMouseout');
 
   function chart(selection) {
     selection.each(function(data) {
-      var availableWidth = width - margin.left - margin.right,
-          availableHeight = height - margin.top - margin.bottom,
-          radius = Math.min(availableWidth, availableHeight) / 2;
+      var availableWidth = width - margin.left - margin.right;
+      var availableHeight = height - margin.top - margin.bottom;
+      var radius = Math.min(availableWidth, availableHeight) / 2;
 
       var container = d3.select(this)
-          .on('click', function(d,i) {
+          .on('click', (d, i) => {
               dispatch.chartClick({
                   data: d,
                   index: i,
                   pos: d3.event,
-                  id: id
+                  id
               });
           });
 
@@ -55,7 +61,7 @@ nv.models.pie = function() {
       // Setup the Pie chart and choose the data element
       var pie = d3.layout.pie()
           .sort(null)
-          .value(function(d) { return d.disabled ? 0 : getY(d) });
+          .value(d => d.disabled ? 0 : getY(d));
 
       var slices = wrap.select('.nv-pie').selectAll('.nv-slice')
           .data(pie);
@@ -72,7 +78,7 @@ nv.models.pie = function() {
                     point: d.data,
                     pointIndex: i,
                     pos: [d3.event.pageX, d3.event.pageY],
-                    id: id
+                    id
                 });
               })
               .on('mouseout', function(d,i){
@@ -82,128 +88,121 @@ nv.models.pie = function() {
                     value: getY(d.data),
                     point: d.data,
                     index: i,
-                    id: id
+                    id
                 });
               })
-              .on('click', function(d,i) {
+              .on('click', (d, i) => {
                 dispatch.elementClick({
                     label: getX(d.data),
                     value: getY(d.data),
                     point: d.data,
                     index: i,
                     pos: d3.event,
-                    id: id
+                    id
                 });
                 d3.event.stopPropagation();
               })
-              .on('dblclick', function(d,i) {
+              .on('dblclick', (d, i) => {
                 dispatch.elementDblClick({
                     label: getX(d.data),
                     value: getY(d.data),
                     point: d.data,
                     index: i,
                     pos: d3.event,
-                    id: id
+                    id
                 });
                 d3.event.stopPropagation();
               });
 
-        slices
-            .attr('fill', function(d,i) { return color(d, i); })
-            .attr('stroke', function(d,i) { return color(d, i); });
+      slices
+          .attr('fill', (d, i) => color(d, i))
+          .attr('stroke', (d, i) => color(d, i));
 
-        var paths = ae.append('path')
-            .each(function(d) { this._current = d; });
-            //.attr('d', arc);
+      var paths = ae.append('path')
+          .each(function(d) { this._current = d; });
+      //.attr('d', arc);
 
-        d3.transition(slices.select('path'))
-            .attr('d', arc)
-            //.ease('bounce')
-            .attrTween('d', arcTween);
-            //.attrTween('d', tweenPie);
+      d3.transition(slices.select('path'))
+          .attr('d', arc)
+          //.ease('bounce')
+          .attrTween('d', arcTween);
+      //.attrTween('d', tweenPie);
 
-        if (showLabels) {
-          // This does the normal label
-          var labelsArc = arc;
-          if (donutLabelsOutside) {
-            labelsArc = d3.svg.arc().outerRadius(arc.outerRadius())
-          }
+      if (showLabels) {
+        // This does the normal label
+        var labelsArc = arc;
+        if (donutLabelsOutside) {
+          labelsArc = d3.svg.arc().outerRadius(arc.outerRadius())
+        }
 
-          ae.append("g").classed("nv-label", true)
-            .each(function(d, i) {
-              var group = d3.select(this);
+        ae.append("g").classed("nv-label", true)
+          .each(function(d, i) {
+            var group = d3.select(this);
 
-              group
-                .attr('transform', function(d) {
-                   d.outerRadius = radius + 10; // Set Outer Coordinate
-                   d.innerRadius = radius + 15; // Set Inner Coordinate
-                   return 'translate(' + labelsArc.centroid(d) + ')'
-                });
-
-              group.append('rect')
-                  .style('stroke', '#fff')
-                  .style('fill', '#fff')
-                  .attr("rx", 3)
-                  .attr("ry", 3);
-
-              group.append('text')
-                  .style('text-anchor', 'middle') //center the text on it's origin
-                  .style('fill', '#000')
-
-
-          });
-
-          slices.select(".nv-label").transition()
-            .attr('transform', function(d) {
-                d.outerRadius = radius + 10; // Set Outer Coordinate
-                d.innerRadius = radius + 15; // Set Inner Coordinate
-                return 'translate(' + labelsArc.centroid(d) + ')';
-            });
-
-          slices.each(function(d, i) {
-            var slice = d3.select(this);
-
-            slice
-              .select(".nv-label text")
-                .text(function(d, i) {
-                  var percent = (d.endAngle - d.startAngle) / (2 * Math.PI);
-                  return (d.value && percent > labelThreshold) ? getX(d.data) : '';
-                });
-
-            var textBox = slice.select('text').node().getBBox();
-            slice.select(".nv-label rect")
-              .attr("width", textBox.width + 10)
-              .attr("height", textBox.height + 10)
-              .attr("transform", function() {
-                return "translate(" + [textBox.x - 5, textBox.y - 5] + ")";
+            group
+              .attr('transform', d => {
+                 d.outerRadius = radius + 10; // Set Outer Coordinate
+                 d.innerRadius = radius + 15; // Set Inner Coordinate
+                 return 'translate(' + labelsArc.centroid(d) + ')'
               });
+
+            group.append('rect')
+                .style('stroke', '#fff')
+                .style('fill', '#fff')
+                .attr("rx", 3)
+                .attr("ry", 3);
+
+            group.append('text')
+                .style('text-anchor', 'middle') //center the text on it's origin
+                .style('fill', '#000')
+
+
+        });
+
+        slices.select(".nv-label").transition()
+          .attr('transform', d => {
+              d.outerRadius = radius + 10; // Set Outer Coordinate
+              d.innerRadius = radius + 15; // Set Inner Coordinate
+              return 'translate(' + labelsArc.centroid(d) + ')';
           });
-        }
+
+        slices.each(function(d, i) {
+          var slice = d3.select(this);
+
+          slice
+            .select(".nv-label text")
+              .text((d, i) => {
+                var percent = (d.endAngle - d.startAngle) / (2 * Math.PI);
+                return (d.value && percent > labelThreshold) ? getX(d.data) : '';
+              });
+
+          var textBox = slice.select('text').node().getBBox();
+          slice.select(".nv-label rect")
+            .attr("width", textBox.width + 10)
+            .attr("height", textBox.height + 10)
+            .attr("transform", () => "translate(" + [textBox.x - 5, textBox.y - 5] + ")");
+        });
+      }
 
 
-        // Computes the angle of an arc, converting from radians to degrees.
-        function angle(d) {
-          var a = (d.startAngle + d.endAngle) * 90 / Math.PI - 90;
-          return a > 90 ? a - 180 : a;
-        }
+      // Computes the angle of an arc, converting from radians to degrees.
+      function angle(d) {
+        var a = (d.startAngle + d.endAngle) * 90 / Math.PI - 90;
+        return a > 90 ? a - 180 : a;
+      }
 
-        function arcTween(a) {
-          if (!donut) a.innerRadius = 0;
-          var i = d3.interpolate(this._current, a);
-          this._current = i(0);
-          return function(t) {
-            return arc(i(t));
-          };
-        }
+      function arcTween(a) {
+        if (!donut) a.innerRadius = 0;
+        var i = d3.interpolate(this._current, a);
+        this._current = i(0);
+        return t => arc(i(t));
+      }
 
-        function tweenPie(b) {
-          b.innerRadius = 0;
-          var i = d3.interpolate({startAngle: 0, endAngle: 0}, b);
-          return function(t) {
-              return arc(i(t));
-          };
-        }
-
+      function tweenPie(b) {
+        b.innerRadius = 0;
+        var i = d3.interpolate({startAngle: 0, endAngle: 0}, b);
+        return t => arc(i(t));
+      }
     });
 
     return chart;

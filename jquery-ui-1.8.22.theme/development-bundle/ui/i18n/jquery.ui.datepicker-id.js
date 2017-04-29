@@ -1,6 +1,6 @@
 /* Indonesian initialisation for the jQuery UI date picker plugin. */
 /* Written by Deden Fathurahman (dedenf@gmail.com). */
-jQuery(function($){
+jQuery($ => {
 	$.datepicker.regional['id'] = {
 		closeText: 'Tutup',
 		prevText: '&#x3c;mundur',

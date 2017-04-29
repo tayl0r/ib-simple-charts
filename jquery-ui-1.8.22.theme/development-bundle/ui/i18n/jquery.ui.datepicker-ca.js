@@ -1,6 +1,6 @@
 /* Inicialització en català per a l'extenció 'calendar' per jQuery. */
 /* Writers: (joan.leon@gmail.com). */
-jQuery(function($){
+jQuery($ => {
 	$.datepicker.regional['ca'] = {
 		closeText: 'Tancar',
 		prevText: '&#x3c;Ant',

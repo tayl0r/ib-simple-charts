@@ -1,6 +1,6 @@
 /* Croatian i18n for the jQuery UI date picker plugin. */
 /* Written by Vjekoslav Nesek. */
-jQuery(function($){
+jQuery($ => {
 	$.datepicker.regional['hr'] = {
 		closeText: 'Zatvori',
 		prevText: '&#x3c;',

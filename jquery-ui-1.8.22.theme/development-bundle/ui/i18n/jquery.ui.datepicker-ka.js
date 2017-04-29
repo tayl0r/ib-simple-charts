@@ -1,6 +1,6 @@
 /* Georgian (UTF-8) initialisation for the jQuery UI date picker plugin. */
 /* Written by Lado Lomidze (lado.lomidze@gmail.com). */
-jQuery(function($){
+jQuery($ => {
 	$.datepicker.regional['ka'] = {
 		closeText: 'დახურვა',
 		prevText: '&#x3c; წინა',

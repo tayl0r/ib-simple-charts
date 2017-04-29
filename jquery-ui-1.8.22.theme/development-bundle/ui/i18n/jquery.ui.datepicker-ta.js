@@ -1,6 +1,6 @@
 /* Tamil (UTF-8) initialisation for the jQuery UI date picker plugin. */
 /* Written by S A Sureshkumar (saskumar@live.com). */
-jQuery(function($){
+jQuery($ => {
 	$.datepicker.regional['ta'] = {
 		closeText: 'மூடு',
 		prevText: 'முன்னையது',

@@ -1,6 +1,6 @@
 /* Hebrew initialisation for the UI Datepicker extension. */
 /* Written by Amir Hardon (ahardon at gmail dot com). */
-jQuery(function($){
+jQuery($ => {
 	$.datepicker.regional['he'] = {
 		closeText: 'סגור',
 		prevText: '&#x3c;הקודם',

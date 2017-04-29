@@ -1,6 +1,6 @@
 /* Serbian i18n for the jQuery UI date picker plugin. */
 /* Written by Dejan Dimić. */
-jQuery(function($){
+jQuery($ => {
 	$.datepicker.regional['sr'] = {
 		closeText: 'Затвори',
 		prevText: '&#x3c;',

@@ -1,6 +1,6 @@
 /* Bulgarian initialisation for the jQuery UI date picker plugin. */
 /* Written by Stoyan Kyosev (http://svest.org). */
-jQuery(function($){
+jQuery($ => {
     $.datepicker.regional['bg'] = {
         closeText: 'затвори',
         prevText: '&#x3c;назад',

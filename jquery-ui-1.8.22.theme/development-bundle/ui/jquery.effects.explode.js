@@ -10,7 +10,7 @@
  * Depends:
  *	jquery.effects.core.js
  */
-(function( $, undefined ) {
+((($, undefined) => {
 
 $.effects.explode = function(o) {
 
@@ -61,7 +61,7 @@ $.effects.explode = function(o) {
 	}
 
 	// Set a timeout, to call the callback approx. when the other animations have finished
-	setTimeout(function() {
+	setTimeout(() => {
 
 		o.options.mode == 'show' ? el.css({ visibility: 'visible' }) : el.css({ visibility: 'visible' }).hide();
 				if(o.callback) o.callback.apply(el[0]); // Callback
@@ -76,4 +76,4 @@ $.effects.explode = function(o) {
 
 };
 
-})(jQuery);
+}))(jQuery);

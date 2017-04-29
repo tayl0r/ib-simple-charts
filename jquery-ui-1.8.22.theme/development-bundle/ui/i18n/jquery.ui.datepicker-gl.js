@@ -1,6 +1,6 @@
 /* Galician localization for 'UI date picker' jQuery extension. */
 /* Translated by Jorge Barreiro <yortx.barry@gmail.com>. */
-jQuery(function($){
+jQuery($ => {
 	$.datepicker.regional['gl'] = {
 		closeText: 'Pechar',
 		prevText: '&#x3c;Ant',

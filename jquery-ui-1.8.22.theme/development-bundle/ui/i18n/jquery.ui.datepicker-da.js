@@ -1,6 +1,6 @@
 /* Danish initialisation for the jQuery UI date picker plugin. */
 /* Written by Jan Christensen ( deletestuff@gmail.com). */
-jQuery(function($){
+jQuery($ => {
     $.datepicker.regional['da'] = {
 		closeText: 'Luk',
         prevText: '&#x3c;Forrige',
