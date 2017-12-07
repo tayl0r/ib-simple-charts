@@ -9,7 +9,7 @@ $serviceName = $_GET["service"];
 
 if ($demo == false) {
 	$response = http_get(
-		"https://www.interactivebrokers.com/Universal/servlet/" . $serviceName . "?v=2&t=" . $apiKey . "&q=" . $reportId,
+		"https://gdcdyn.interactivebrokers.com/Universal/servlet/" . $serviceName . "?v=2&t=" . $apiKey . "&q=" . $reportId,
 		array(
 			"timeout" => 30,
 			"useragent" => "Java"
