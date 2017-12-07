@@ -3,7 +3,7 @@ ib-simple-charts
 
 Simple Charts for your Interactive Brokers account.
 
-See demo here: http://www.taylorsteil.com/ib-simple-charts-demo/
+See demo here: (sorry, it's down)
 
 Why?
 ====
@@ -52,7 +52,7 @@ Step 1
 First, let's setup the flex reports at IB.
 Go to the Flex Queries section of Activity Statements.
 
-![ib1](ib-simple-charts/raw/master/docs/ib1.png)
+![ib1](https://github.com/tayl0r/ib-simple-charts/raw/master/docs/ib1.png)
 
 We're going to want to setup 3 flex queries that are identical with the exception of the time frame.
 I used these three time frames: 1 year back, year to date, and 1 month back.
@@ -98,7 +98,7 @@ Then click Save Query at the bottom.
 
 Do this 3 times, for each date range. Now go back to the main flex query screen and you should see the IDs of your flex queries.
 
-![ib2](ib-simple-charts/raw/master/docs/ib2.png)
+![ib2](https://github.com/tayl0r/ib-simple-charts/raw/master/docs/ib2.png)
 
 
 Step 2
@@ -120,7 +120,7 @@ We need to generate a new token if you don't already have one so click the Gener
 
 **You should probably change the "Will Expire After" dropdown to 1 year.**
 
-![ib3](ib-simple-charts/raw/master/docs/ib3.png)
+![ib3](https://github.com/tayl0r/ib-simple-charts/raw/master/docs/ib3.png)
 
 **You should probably change the "Will Expire After" dropdown to 1 year.**
 
